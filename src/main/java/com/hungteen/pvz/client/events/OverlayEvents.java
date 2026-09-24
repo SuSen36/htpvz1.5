@@ -31,6 +31,9 @@ public class OverlayEvents {
 				PVZOverlayHandler.renderResources(stack, width, height);
 			}
 
+			/* render conveyor belt on left side */
+			PVZOverlayHandler.renderConveyorBelt(stack, width, height);
+
 			/* render plant food on left lower corner */
 			if (PVZConfig.CLIENT_CONFIG.OverlaySettings.RenderPlantFoodBar.get()) {
 				PVZOverlayHandler.renderPlantFood(stack, width, height);

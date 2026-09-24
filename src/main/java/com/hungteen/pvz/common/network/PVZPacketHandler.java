@@ -3,6 +3,7 @@ package com.hungteen.pvz.common.network;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.network.toclient.*;
 import com.hungteen.pvz.common.network.toserver.ClickButtonPacket;
+import com.hungteen.pvz.common.network.toserver.ConveyorTakePacket;
 import com.hungteen.pvz.common.network.toserver.EntityInteractPacket;
 import com.hungteen.pvz.common.network.toserver.PVZMouseScrollPacket;
 import com.hungteen.pvz.common.network.toserver.UpdateMotionPacket;
@@ -43,6 +44,8 @@ public class PVZPacketHandler {
 		CHANNEL.registerMessage(id++, PVZFogPacket.class, PVZFogPacket::encode, PVZFogPacket::new, PVZFogPacket::handle);
 		CHANNEL.registerMessage(id++, ChallengeBarPacket.class, ChallengeBarPacket::encode, ChallengeBarPacket::new, ChallengeBarPacket::handle);
 		CHANNEL.registerMessage(id++, SunLimitPacket.class, SunLimitPacket::encode, SunLimitPacket::new, SunLimitPacket.Handler::onMessage);
+		CHANNEL.registerMessage(id++, ConveyorBeltPacket.class, ConveyorBeltPacket::encode, ConveyorBeltPacket::new, ConveyorBeltPacket::handle);
+		CHANNEL.registerMessage(id++, ConveyorTakePacket.class, ConveyorTakePacket::encode, ConveyorTakePacket::new, ConveyorTakePacket.Handler::onMessage);
 	}
 
 	public static <MSG> void sendToServer(MSG msg) {

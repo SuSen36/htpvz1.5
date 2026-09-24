@@ -1,6 +1,7 @@
 package com.hungteen.pvz.client.events.handler;
 
 import com.hungteen.pvz.client.ClientProxy;
+import com.hungteen.pvz.client.challenge.ClientConveyorBeltManager;
 import com.hungteen.pvz.client.events.OverlayEvents;
 import com.hungteen.pvz.client.events.PVZInputEvents;
 import com.hungteen.pvz.common.capability.player.PlayerDataManager;
@@ -31,6 +32,7 @@ public class PVZOverlayHandler {
 	private static final ResourceLocation FOG = StringUtil.prefix("textures/gui/overlay/fog.png");
 	private static final ResourceLocation INVASION = StringUtil.prefix("textures/gui/overlay/invasion.png");
 	private static final ResourceLocation TARGET = StringUtil.prefix("textures/gui/overlay/target.png");
+	private static final ResourceLocation CONVEYOR = StringUtil.prefix("textures/gui/overlay/conveyor.png");
 	private static final int SUN_BAR_W1 = 157;
 	private static final int SUN_BAR_H1 = 32;
 	private static final int SUN_BAR_W2 = 122;
@@ -39,12 +41,29 @@ public class PVZOverlayHandler {
 	private static final int SLOT_DELAY_CD = 20;
 	private static final int TEX_SZ = 256;
 	private static final int SlotDelay = 0;
+	/* 传送带贴图 64×64：整块带子占 x0-21/y0-42，带面 x3-18，中段 y4-39 为 36px 循环段 */
+	private static final int CONVEYOR_TEX_SZ = 64;
+	private static final int CONVEYOR_BELT_X = 0;
+	private static final int CONVEYOR_BELT_Y = 26;
+	private static final int CONVEYOR_BELT_W = 22;
+	private static final int CONVEYOR_HEAD_H = 4;
+	private static final int CONVEYOR_TAIL_H = 3;
+	private static final int CONVEYOR_BAND_V = 4;
+	private static final int CONVEYOR_BAND_H = 36;
+	private static final int CONVEYOR_CARD_X = CONVEYOR_BELT_X + 3;
+	private static final int CONVEYOR_CARD_SIZE = 16;
+	private static final int CONVEYOR_SPACING = 17;
+	//容量需与服务端 Challenge.CONVEYOR_MAX_CARDS 保持一致（原版传送带固定 10 格）
+	private static final int CONVEYOR_SLOTS = 10;
+	private static final int CONVEYOR_ENTRY_OFFSET = CONVEYOR_SPACING;
+	private static final int CONVEYOR_HIGHLIGHT = 0xFFFFE24B;
 
 	/**
 	 * {@link OverlayEvents#onPostRenderOverlay(net.minecraftforge.client.event.RenderGuiEvent.Post)}
 	 */
 	public static void renderResources(PoseStack stack, int width, int height) {
-		final int pos = PVZInputEvents.CurrentResourcePos;
+		//传送带关卡取卡与种植都不消耗阳光，资源栏固定切到金币
+		final int pos = ClientConveyorBeltManager.isActive() ? 1 : PVZInputEvents.CurrentResourcePos;
 		if(pos == 0 && ConfigUtil.renderSunBar()) {
 			renderSunBar(stack, width, height);
 		} else if(pos == 1 && ConfigUtil.renderMoneyBar()) {
@@ -223,6 +242,52 @@ public class PVZOverlayHandler {
 	}
 
 	/**
+	 * 屏幕左侧贴边的竖直传送带：头 4px 与尾 3px 固定，中段 36px 按 gameTime 纵向平铺循环。
+	 * 卡片滑动位移由入场时刻推算，与带面同为 1px/tick，故两者视觉同步。
+	 * {@link OverlayEvents#onPostRenderOverlay(net.minecraftforge.client.event.RenderGuiEvent.Post)}
+	 */
+	public static void renderConveyorBelt(PoseStack stack, int width, int height) {
+		if(ClientConveyorBeltManager.isActive()) {
+			final int count = ClientConveyorBeltManager.getSize();
+			//容量固定为槽位数，带高不随卡片数变化；末尾多留一格作新卡入场区，卡片滑入时不会越出带面
+			final int beltH = CONVEYOR_HEAD_H + (CONVEYOR_SLOTS + 1) * CONVEYOR_SPACING + CONVEYOR_TAIL_H;
+			final long now = ClientProxy.MC.level.getGameTime();
+			final int scroll = (int) (now % CONVEYOR_BAND_H);
+			final int bandTop = CONVEYOR_BELT_Y + CONVEYOR_HEAD_H;
+			final int bandBottom = CONVEYOR_BELT_Y + beltH - CONVEYOR_TAIL_H;
+
+			stack.pushPose();
+			RenderSystem.enableBlend();
+			bindTexture(CONVEYOR);
+			for(int top = bandTop - scroll; top < bandBottom; top += CONVEYOR_BAND_H) {
+				final int from = Math.max(top, bandTop);
+				final int to = Math.min(top + CONVEYOR_BAND_H, bandBottom);
+				if(to > from) {
+					blitTex64(stack, CONVEYOR_BELT_X, from, 0, CONVEYOR_BAND_V + (from - top), CONVEYOR_BELT_W, to - from);
+				}
+			}
+			blitTex64(stack, CONVEYOR_BELT_X, CONVEYOR_BELT_Y, 0, 0, CONVEYOR_BELT_W, CONVEYOR_HEAD_H);
+			blitTex64(stack, CONVEYOR_BELT_X, CONVEYOR_BELT_Y + beltH - CONVEYOR_TAIL_H, 0, CONVEYOR_BAND_V + CONVEYOR_BAND_H, CONVEYOR_BELT_W, CONVEYOR_TAIL_H);
+			RenderSystem.disableBlend();
+			stack.popPose();
+
+			final int selected = ClientConveyorBeltManager.getSelected();
+			for(int i = 0; i < count; ++ i) {
+				final long offset = Math.max(0L, CONVEYOR_ENTRY_OFFSET - (now - ClientConveyorBeltManager.getEntryTick(i)));
+				final int cardY = CONVEYOR_BELT_Y + CONVEYOR_HEAD_H + i * CONVEYOR_SPACING
+						+ (CONVEYOR_SPACING - CONVEYOR_CARD_SIZE) / 2 + (int) offset;
+				if(i == selected) {
+					GuiComponent.fill(stack, CONVEYOR_CARD_X - 1, cardY - 1, CONVEYOR_CARD_X + CONVEYOR_CARD_SIZE + 1, cardY, CONVEYOR_HIGHLIGHT);
+					GuiComponent.fill(stack, CONVEYOR_CARD_X - 1, cardY + CONVEYOR_CARD_SIZE, CONVEYOR_CARD_X + CONVEYOR_CARD_SIZE + 1, cardY + CONVEYOR_CARD_SIZE + 1, CONVEYOR_HIGHLIGHT);
+					GuiComponent.fill(stack, CONVEYOR_CARD_X - 1, cardY, CONVEYOR_CARD_X, cardY + CONVEYOR_CARD_SIZE, CONVEYOR_HIGHLIGHT);
+					GuiComponent.fill(stack, CONVEYOR_CARD_X + CONVEYOR_CARD_SIZE, cardY, CONVEYOR_CARD_X + CONVEYOR_CARD_SIZE + 1, cardY + CONVEYOR_CARD_SIZE, CONVEYOR_HIGHLIGHT);
+				}
+				ClientProxy.MC.getItemRenderer().renderAndDecorateItem(ClientConveyorBeltManager.getCard(i), CONVEYOR_CARD_X, cardY, 0);
+			}
+		}
+	}
+
+	/**
 	 * {@link #renderResources(PoseStack, int, int)}
 	 */
 	private static void renderSunBar(PoseStack stack, int width, int height) {
@@ -312,6 +377,10 @@ public class PVZOverlayHandler {
 	 */
 	private static void blitTex(PoseStack stack, int x, int y, int u, int v, int w, int h) {
 		GuiComponent.blit(stack, x, y, 0, (float) u, (float) v, w, h, TEX_SZ, TEX_SZ);
+	}
+
+	private static void blitTex64(PoseStack stack, int x, int y, int u, int v, int w, int h) {
+		GuiComponent.blit(stack, x, y, 0, (float) u, (float) v, w, h, CONVEYOR_TEX_SZ, CONVEYOR_TEX_SZ);
 	}
 
 	private static void bindTexture(ResourceLocation texture) {

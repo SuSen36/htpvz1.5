@@ -20,6 +20,7 @@ import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.common.network.PVZFogPacket;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.network.toclient.ChallengeBarPacket;
+import com.hungteen.pvz.common.network.toclient.ConveyorBeltPacket;
 import com.hungteen.pvz.common.world.PVZFog;import com.hungteen.pvz.utils.ConfigUtil;
 import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.PlayerUtil;
@@ -46,6 +47,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.common.MinecraftForge;
@@ -65,6 +67,10 @@ public class Challenge implements IChallenge {
 	private static final double FOG_RANGE = 18.0D;
 	private static final String TAG_FOG = "fog";
 	private static final String TAG_SEED_RAIN = "seed_rain";
+	private static final String TAG_CONVEYOR = "conveyor";
+	//带上最多10张卡，首张200cs后出现，之后按带上张数分档补卡（原版数值单位为cs，换算tick需除以5）
+	private static final int CONVEYOR_MAX_CARDS = 10;
+	private static final int CONVEYOR_INITIAL_DELAY = 40;
 	private static final int MAX_ZOMBIES_IN_WAVE = 50;
 	private static final int SWITCH_INTERVAL = 5;
 	//对齐pvz2D mHugeWaveCountDown：旗帜波刷怪前750cs（7.5秒）红字预警
@@ -102,6 +108,8 @@ public class Challenge implements IChallenge {
 	private int fogRecoverDelay = 0;
 	//玩家真实阳光在进入范围时快照于此，SUN_NUM槽位在挑战期间承载挑战余额
 	private final Map<UUID, SunSession> sunSessions = new HashMap<>();
+	//每玩家一条独立带面，取卡与后续种植都不消耗阳光
+	private final Map<UUID, ConveyorBelt> conveyorBelts = new HashMap<>();
 
 
 
@@ -319,6 +327,9 @@ public class Challenge implements IChallenge {
 				}
 			});
 		}
+		if(this.hasConveyorBelt() && (this.isPreparing() || this.isRunning())) {
+			this.updateConveyorBelts();
+		}
 		this.tickFog();
 	}
 
@@ -353,6 +364,10 @@ public class Challenge implements IChallenge {
 		return this.hasTag(TAG_SEED_RAIN) && this.challenge.getSeedPool() != null;
 	}
 
+	public boolean hasConveyorBelt() {
+		return this.hasTag(TAG_CONVEYOR) && this.challenge.getSeedPool() != null;
+	}
+
 	public void spawnSeedPacket(BlockPos pos) {
 		final WeightList<ItemStack> pool = this.challenge.getSeedPool();
 		final Optional<ItemStack> card = pool.getRandomItem(this.world.random);
@@ -366,6 +381,94 @@ public class Challenge implements IChallenge {
 				seedPacket.setCardStack(cardStack);
 				this.world.addFreshEntity(seedPacket);
 			}
+		}
+	}
+
+	/**
+	 * 每玩家独立带面：每tick推进补卡倒计时，到点按权重补一张并整表同步给该玩家。
+	 * 卡片滑动位置由客户端按入场gameTime推算，服务端只维护带面内容与倒计时。
+	 */
+	private void updateConveyorBelts() {
+		this.world.getPlayers(this.validPlayer()).forEach(player -> {
+			final ConveyorBelt belt = this.conveyorBelts.computeIfAbsent(player.getUUID(), uuid -> new ConveyorBelt());
+			-- belt.spawnCooldown;
+			if(belt.spawnCooldown <= 0) {
+				//原版间隔按补卡前的张数分档：不超过4张400cs、超过4张425cs、超过6张500cs、超过8张1000cs
+				final int count = belt.cards.size();
+				belt.spawnCooldown = count > 8 ? 200 : count > 6 ? 100 : count > 4 ? 85 : 80;
+				if(count < CONVEYOR_MAX_CARDS) {
+					final WeightList<ItemStack> pool = this.challenge.getSeedPool();
+					final WeightList<ItemStack> adjusted = new WeightList<>();
+					int total = 0;
+					if(pool != null) {
+						for(int i = 0; i < pool.getLen(); ++ i) {
+							final ItemStack stack = pool.getItem(i);
+							int weight = pool.getWeight(i);
+							//原版权重压制：带上同类型已达4张压到1、已达3张压到5、与上一张同类型减半
+							if(pool.getLen() > 2) {
+								int onBelt = 0;
+								for(ItemStack card : belt.cards) {
+									if(card.getItem() == stack.getItem()) {
+										++ onBelt;
+									}
+								}
+								if(onBelt >= 4) {
+									weight = 1;
+								} else if(onBelt >= 3) {
+									weight = 5;
+								} else if(stack.getItem() == belt.lastSeedType) {
+									weight /= 2;
+								}
+							}
+							total += weight;
+							adjusted.addItem(stack, weight);
+						}
+					}
+					//权重全为0时 getRandomItem 会以0为界取随机数，此处跳过本次补卡
+					final Optional<ItemStack> card = total > 0 ? adjusted.getRandomItem(this.world.random) : Optional.empty();
+					if(card.isPresent()) {
+						//种子池条目是 WeightList 里共享的同一个 ItemStack，直接写 uuid 会把标记永久留进池子
+						final ItemStack cardStack = card.get().copy();
+						PlantCardItem.setChallengeUuid(cardStack, this.getBarUuid());
+						belt.cards.add(cardStack);
+						belt.entryTicks.add(this.world.getGameTime());
+						belt.lastSeedType = cardStack.getItem();
+						this.syncConveyorBeltTo(player);
+					}
+				}
+			}
+		});
+	}
+
+	/**
+	 * 取走带上指定卡：走原版拾取语义（快捷栏优先、可堆叠），背包放不下则卡片留在带上。
+	 */
+	public void takeConveyorCard(ServerPlayer player, int index) {
+		final ConveyorBelt belt = this.conveyorBelts.get(player.getUUID());
+		if(belt != null && index >= 0 && index < belt.cards.size()) {
+			final ItemStack cardStack = belt.cards.get(index);
+			if(player.getInventory().add(cardStack.copy())) {
+				belt.cards.remove(index);
+				belt.entryTicks.remove(index);
+				//重置入场时刻，客户端据此把后方卡片滑入空出的槽位
+				for(int i = index; i < belt.cards.size(); ++ i) {
+					belt.entryTicks.set(i, this.world.getGameTime());
+				}
+				this.syncConveyorBeltTo(player);
+			} else {
+				player.displayClientMessage(Component.translatable("challenge.pvz.conveyor_full"), true);
+			}
+		}
+	}
+
+	private void syncConveyorBeltTo(ServerPlayer player) {
+		final ConveyorBelt belt = this.conveyorBelts.get(player.getUUID());
+		if(belt != null) {
+			final long[] entryTicks = new long[belt.entryTicks.size()];
+			for(int i = 0; i < entryTicks.length; ++ i) {
+				entryTicks[i] = belt.entryTicks.get(i);
+			}
+			PVZPacketHandler.sendToClient(player, new ConveyorBeltPacket(belt.cards, entryTicks));
 		}
 	}
 
@@ -652,6 +755,11 @@ public class Challenge implements IChallenge {
 				this.syncBarTo(p);
 				//挑战期间禁止僵尸入侵叠加：清空入侵波次与任务，入侵进度条随之消失
 				PlayerUtil.getInvasion(p).disable();
+				//带面为空时也要下发，玩家一进范围即显示带子
+				if(this.hasConveyorBelt()) {
+					this.conveyorBelts.computeIfAbsent(p.getUUID(), uuid -> new ConveyorBelt());
+					this.syncConveyorBeltTo(p);
+				}
 			}
 		});
 
@@ -660,6 +768,10 @@ public class Challenge implements IChallenge {
 			if(! newPlayers.contains(p)) {
 				this.challengeBar.removePlayer(p);
 				//阳光不随离开范围立即恢复，保留挑战余额至 remove() 时 releaseAllSunSessions 统一写回
+				//带面内容保留，玩家回到范围时由上面的分支重新下发
+				if(this.hasConveyorBelt()) {
+					PVZPacketHandler.sendToClient(p, ConveyorBeltPacket.remove());
+				}
 			}
 		});
 
@@ -843,13 +955,19 @@ public class Challenge implements IChallenge {
 		//非雾挑战不存在对应UUID的雾，此处返回false且不发包，无副作用
 		PVZFogCapability.modifyFogFeatures(this.world, this.getFogUUID(), PVZFogPacket.ModifyType.REMOVE, 0);
 		final ChallengeBarPacket removePacket = ChallengeBarPacket.remove(this.id);
-		this.getPlayers().forEach(player -> PVZPacketHandler.sendToClient(player, removePacket));
+		//带面包同样按 heroes 补齐下发，非传送带挑战收到空包仅清空本地状态，幂等无害
+		final ConveyorBeltPacket beltRemovePacket = ConveyorBeltPacket.remove();
+		this.getPlayers().forEach(player -> {
+			PVZPacketHandler.sendToClient(player, removePacket);
+			PVZPacketHandler.sendToClient(player, beltRemovePacket);
+		});
 		//曾参与但已离开范围（被 updatePlayers 移出 challengeBar）的在线玩家收不到上面的 remove 包，
 		//其客户端 BGM 会残留一直播放，此处按 heroes 补齐停曲；重复发送幂等无害
 		this.heroes.forEach(uuid -> {
 			final Player player = this.world.getPlayerByUUID(uuid);
 			if(player instanceof ServerPlayer serverPlayer && ! this.challengeBar.getPlayers().contains(serverPlayer)) {
 				PVZPacketHandler.sendToClient(serverPlayer, removePacket);
+				PVZPacketHandler.sendToClient(serverPlayer, beltRemovePacket);
 			}
 		});
 		this.challengeBar.removeAllPlayers();
@@ -1038,6 +1156,17 @@ public class Challenge implements IChallenge {
 			this.challengeSun = challengeSun;
 			this.exchanged = exchanged;
 		}
+	}
+
+	/**
+	 * 单次挑战内一名玩家的传送带：cards 按带上顺序排列，entryTicks 记录各卡滑入当前槽位的gameTime，
+	 * 客户端据此推算滑动位移，服务端无需维护坐标。
+	 */
+	private static final class ConveyorBelt {
+		private final List<ItemStack> cards = new ArrayList<>();
+		private final List<Long> entryTicks = new ArrayList<>();
+		private int spawnCooldown = CONVEYOR_INITIAL_DELAY;
+		private Item lastSeedType;
 	}
 
 }

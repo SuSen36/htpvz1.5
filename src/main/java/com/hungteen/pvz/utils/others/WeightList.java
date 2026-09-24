@@ -85,7 +85,7 @@ public class WeightList<T> {
         return this.itemList.get(pos);
     }
 
-    private int getWeight(int pos) {
+    public int getWeight(int pos) {
         return this.weightList.get(pos);
     }
 

@@ -4,7 +4,8 @@
   ],
   "tags": [
     "overworld",
-    "night"
+    "night",
+    "conveyor"
   ],
   "bar_color": "red",
   "trade_price": 300,
@@ -1547,6 +1548,32 @@
           "start_from": 0.4667
         }
       ]
+    }
+  ],
+  "seed_pool": [
+    {
+      "item": "pvz:flower_pot_enjoy_card",
+      "weight": 5
+    },
+    {
+      "item": "pvz:melon_pult_enjoy_card",
+      "weight": 10
+    },
+    {
+      "item": "pvz:jalapeno_enjoy_card",
+      "weight": 12
+    },
+    {
+      "item": "pvz:cabbage_pult_enjoy_card",
+      "weight": 10
+    },
+    {
+      "item": "pvz:kernel_pult_enjoy_card",
+      "weight": 5
+    },
+    {
+      "item": "pvz:ice_shroom_enjoy_card",
+      "weight": 8
     }
   ],
   "messages": [
