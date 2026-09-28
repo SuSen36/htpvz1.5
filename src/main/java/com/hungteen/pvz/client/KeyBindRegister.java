@@ -17,7 +17,7 @@ public class KeyBindRegister {
 	public static final KeyMapping DOWN_TOGGLE = new KeyMapping("key.pvz.down_toggle", 264, "key.categories.pvz");
 	public static final KeyMapping LEFT_TOGGLE = new KeyMapping("key.pvz.left_toggle", 263, "key.categories.pvz");
 	public static final KeyMapping RIGHT_TOGGLE = new KeyMapping("key.pvz.right_toggle", 262, "key.categories.pvz");
-	public static final KeyMapping TAKE_CARD = new KeyMapping("key.pvz.take_card", 79, "key.categories.pvz");
+	public static final KeyMapping TAKE_CARD = new KeyMapping("key.pvz.take_card", 67, "key.categories.pvz");
 //	public static final KeyMapping SHIFT = new KeyMapping("key.pvz.shift", 340, "key.categories.pvz");
 	
 	@SubscribeEvent

@@ -16,6 +16,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.IntRange;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -138,6 +139,14 @@ public class PVZBlockLootTables implements Consumer<BiConsumer<ResourceLocation,
         this.dropOther(BlockRegister.GOLD_TILE1.get(), Blocks.GOLD_BLOCK);
         this.dropOther(BlockRegister.GOLD_TILE2.get(), Blocks.GOLD_BLOCK);
         this.dropOther(BlockRegister.GOLD_TILE3.get(), Blocks.GOLD_BLOCK);
+
+        final LootItemCondition.Builder planternLowerCondition = LootItemBlockStatePropertyCondition.hasBlockStateProperties(BlockRegister.PLANTERN.get())
+                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(DoublePlantBlock.HALF, DoubleBlockHalf.LOWER));
+        this.add(BlockRegister.PLANTERN.get(), LootTable.lootTable().withPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0F))
+                .add(LootItem.lootTableItem(BlockRegister.PLANTERN.get())
+                        .when(planternLowerCondition)
+                        .when(ExplosionCondition.survivesExplosion()))));
 
         // no-loot blocks get empty loot table
         for (Block block : noLootBlocks) {

@@ -1,10 +1,14 @@
 package com.hungteen.pvz.common.advancement;
 
 import com.hungteen.pvz.common.advancement.trigger.*;
+import com.hungteen.pvz.utils.StringUtil;
 
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.critereon.PlayerTrigger;
 
 public class AdvancementHandler {
+
+	public static final PlayerTrigger BOWLING_STRIKE = new PlayerTrigger(StringUtil.prefix("strike"));
 
 	public static void init() {
 		CriteriaTriggers.register(SunAmountTrigger.INSTANCE);
@@ -20,6 +24,7 @@ public class AdvancementHandler {
 		CriteriaTriggers.register(InvasionMissionTrigger.INSTANCE);
 		CriteriaTriggers.register(PVZTradeTrigger.INSTANCE);
 		CriteriaTriggers.register(SlotMachineTrigger.INSTANCE);
+		CriteriaTriggers.register(BOWLING_STRIKE);
 	}
 	
 }

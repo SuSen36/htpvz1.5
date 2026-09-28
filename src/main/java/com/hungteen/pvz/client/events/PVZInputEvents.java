@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.events;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.client.ClientProxy;
 import com.hungteen.pvz.client.KeyBindRegister;
-import com.hungteen.pvz.client.challenge.ClientConveyorBeltManager;
+import com.hungteen.pvz.client.capability.level.ConveyorBeltCapability;
 import com.hungteen.pvz.common.entity.plant.explosion.CobCannonEntity;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.network.toserver.ConveyorTakePacket;
@@ -42,15 +42,16 @@ public class PVZInputEvents {
 			
 			/* switch the selected card on conveyor belt and take it */
 			//背包与创造背包设了 passEvents，界面打开时 KeyMapping 仍会记录点击，不排除会误取卡
-			if(ClientConveyorBeltManager.isActive() && mc.screen == null) {
+			final ConveyorBeltCapability belt = ConveyorBeltCapability.getCurrent();
+			if(belt != null && belt.isActive() && mc.screen == null) {
 				if(KeyBindRegister.UP_TOGGLE.consumeClick()) {
-					ClientConveyorBeltManager.changeSelection(- 1);
+					belt.changeSelection(- 1);
 				}
 				if(KeyBindRegister.DOWN_TOGGLE.consumeClick()) {
-					ClientConveyorBeltManager.changeSelection(1);
+					belt.changeSelection(1);
 				}
 				if(KeyBindRegister.TAKE_CARD.consumeClick()) {
-					PVZPacketHandler.sendToServer(new ConveyorTakePacket(ClientConveyorBeltManager.getSelected()));
+					PVZPacketHandler.sendToServer(new ConveyorTakePacket(belt.getSelected()));
 				}
 			}
 		}

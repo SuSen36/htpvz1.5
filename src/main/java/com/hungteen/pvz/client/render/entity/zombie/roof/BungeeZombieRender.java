@@ -34,9 +34,10 @@ public class BungeeZombieRender extends PVZZombieRender<BungeeZombieEntity> {
 	private void renderLine(BungeeZombieEntity entityLivingIn, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn) {
 		matrixStackIn.pushPose();
 
-		double d6 = entityLivingIn.getOriginPos().getX() + 0.5D;
-		double d7 = entityLivingIn.getOriginPos().getY();
-		double d8 = entityLivingIn.getOriginPos().getZ() + 0.5D;
+		final Vec3 anchor = entityLivingIn.getAnchorPos();
+		double d6 = anchor.x;
+		double d7 = anchor.y;
+		double d8 = anchor.z;
 
 		double d9 = (double)(Mth.lerp(partialTicks, entityLivingIn.yBodyRotO, entityLivingIn.yBodyRot) * ((float)Math.PI / 180F)) + (Math.PI / 2D);
 		Vec3 vec31 = entityLivingIn.getLeashOffset();
@@ -61,12 +62,12 @@ public class BungeeZombieRender extends PVZZombieRender<BungeeZombieEntity> {
 		float f6 = f * f4;
 
 		BlockPos blockpos = new BlockPos(entityLivingIn.getEyePosition(partialTicks));
-		BlockPos blockpos1 = entityLivingIn.getOriginPos();
+		BlockPos anchorPos = new BlockPos(anchor);
 
 		int i = this.getBlockLightLevel(entityLivingIn, blockpos);
-		int j = entityLivingIn.level.getBrightness(LightLayer.BLOCK, blockpos1);
+		int j = entityLivingIn.level.getBrightness(LightLayer.BLOCK, anchorPos);
 		int k = entityLivingIn.level.getBrightness(LightLayer.SKY, blockpos);
-		int l = entityLivingIn.level.getBrightness(LightLayer.SKY, blockpos1);
+		int l = entityLivingIn.level.getBrightness(LightLayer.SKY, anchorPos);
 
 		for(int i1 = 0; i1 <= 24; ++i1) {
 			addVertexPair(vertexconsumer, matrix4f, f, f1, f2, i, j, k, l, 0.025F, 0.025F, f5, f6, i1, false);

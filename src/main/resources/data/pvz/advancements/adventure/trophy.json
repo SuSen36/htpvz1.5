@@ -12,7 +12,7 @@
 	"frame":"challenge",
     "announce_to_chat": true
   },
-  "parent":"pvz:adventure/edgar_090505",
+  "parent":"pvz:adventure/zombot",
   "criteria": {
     "get_origin": {
       "trigger": "minecraft:inventory_changed",

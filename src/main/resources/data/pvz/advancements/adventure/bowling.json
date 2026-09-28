@@ -1,0 +1,28 @@
+{
+  "parent": "pvz:adventure/first_plant",
+  "display": {
+    "icon": {
+      "item": "pvz:wall_nut_enjoy_card"
+    },
+    "title": {
+      "translate": "advancement.pvz.bowling"
+    },
+    "description": {
+      "translate": "advancement.pvz.bowling.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "strike": {
+      "trigger": "pvz:strike"
+    }
+  },
+  "requirements": [
+    [
+      "strike"
+    ]
+  ]
+}

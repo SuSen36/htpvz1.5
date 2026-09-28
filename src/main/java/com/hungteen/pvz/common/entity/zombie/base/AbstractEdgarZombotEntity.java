@@ -3,13 +3,13 @@ package com.hungteen.pvz.common.entity.zombie.base;
 import com.hungteen.pvz.api.types.IZombieType;
 import com.hungteen.pvz.common.entity.EntityRegister;
 import com.hungteen.pvz.common.entity.ai.goal.target.PVZNearestTargetGoal;
-import com.hungteen.pvz.common.entity.misc.DestroyCarEntity;
 import com.hungteen.pvz.common.entity.misc.ElementBallEntity;
 import com.hungteen.pvz.common.entity.zombie.PVZZombieEntity;
 import com.hungteen.pvz.common.entity.zombie.roof.BungeeZombieEntity;
 import com.hungteen.pvz.common.impl.zombie.*;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.utils.*;
+import com.hungteen.pvz.utils.others.EntityList;
 import com.hungteen.pvz.utils.others.WeightList;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -25,7 +25,9 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,70 +36,92 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2022-02-04 11:32
  **/
-public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
+public abstract class AbstractEdgarZombotEntity extends AbstractBossZombieEntity {
 
-    private static final EntityDataAccessor<Integer> STATES = SynchedEntityData.defineId(EdgarRobotEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> STATES = SynchedEntityData.defineId(AbstractEdgarZombotEntity.class, EntityDataSerializers.INT);
     private static final WeightList<ZombieType> ZOMBIES_1 = new WeightList<>();
     private static final WeightList<ZombieType> ZOMBIES_2 = new WeightList<>();
     private static final WeightList<ZombieType> ZOMBIES_3 = new WeightList<>();
     private static final WeightList<ZombieType> ZOMBIES_4 = new WeightList<>();
     private static final WeightList<ZombieType> ZOMBIES_5 = new WeightList<>();
-    protected int throwCarTick;
     protected int shootBallTick;
     protected int stealPlantTick;
+    private final EntityList<BungeeZombieEntity> stealBungees = new EntityList<>();
 
     static {
         {//stage 1 zombies.
             ZOMBIES_1.addItem(GrassZombies.NORMAL_ZOMBIE, 100);
-            ZOMBIES_1.addItem(GrassZombies.NEWSPAPER_ZOMBIE, 90);
-            ZOMBIES_1.addItem(GrassZombies.SCREENDOOR_ZOMBIE, 70);
-            ZOMBIES_1.addItem(PoolZombies.SNORKEL_ZOMBIE, 100);
-            ZOMBIES_1.addItem(PoolZombies.BALLOON_ZOMBIE, 80);
-            ZOMBIES_1.addItem(RoofZombies.IMP, 80);
+            ZOMBIES_1.addItem(GrassZombies.CONEHEAD_ZOMBIE, 30);
+            ZOMBIES_1.addItem(GrassZombies.BUCKETHEAD_ZOMBIE, 30);
+            ZOMBIES_1.addItem(GrassZombies.POLE_ZOMBIE, 30);
+            ZOMBIES_1.addItem(PoolZombies.JACK_IN_BOX_ZOMBIE, 30);
+            ZOMBIES_1.addItem(RoofZombies.LADDER_ZOMBIE, 30);
+            ZOMBIES_1.addItem(PoolZombies.POGO_ZOMBIE, 30);
+            ZOMBIES_1.addItem(GrassZombies.NEWSPAPER_ZOMBIE, 30);
+            ZOMBIES_1.addItem(GrassZombies.SCREENDOOR_ZOMBIE, 30);
         }
         {//stage 2 zombies.
             ZOMBIES_2.addItem(GrassZombies.CONEHEAD_ZOMBIE, 100);
-            ZOMBIES_2.addItem(GrassZombies.POLE_ZOMBIE, 90);
-            ZOMBIES_2.addItem(GrassZombies.DANCING_ZOMBIE, 70);
-            ZOMBIES_2.addItem(PoolZombies.JACK_IN_BOX_ZOMBIE, 85);
-            ZOMBIES_2.addItem(PoolZombies.DIGGER_ZOMBIE, 70);
-            ZOMBIES_2.addItem(PoolZombies.POGO_ZOMBIE, 85);
-            ZOMBIES_2.addItem(PoolZombies.BALLOON_ZOMBIE, 80);
+            ZOMBIES_2.addItem(GrassZombies.BUCKETHEAD_ZOMBIE, 30);
+            ZOMBIES_2.addItem(GrassZombies.FOOTBALL_ZOMBIE, 30);
+            ZOMBIES_2.addItem(GrassZombies.POLE_ZOMBIE, 30);
+            ZOMBIES_2.addItem(PoolZombies.JACK_IN_BOX_ZOMBIE, 30);
+            ZOMBIES_2.addItem(RoofZombies.LADDER_ZOMBIE, 30);
+            ZOMBIES_2.addItem(PoolZombies.ZOMBONI, 30);
+            ZOMBIES_2.addItem(RoofZombies.CATAPULT_ZOMBIE, 30);
+            ZOMBIES_2.addItem(PoolZombies.POGO_ZOMBIE, 30);
+            ZOMBIES_2.addItem(GrassZombies.NEWSPAPER_ZOMBIE, 30);
+            ZOMBIES_2.addItem(GrassZombies.SCREENDOOR_ZOMBIE, 30);
+            ZOMBIES_2.addItem(RoofZombies.GARGANTUAR, 30);
         }
         {//stage 3 zombies.
             ZOMBIES_3.addItem(GrassZombies.BUCKETHEAD_ZOMBIE, 100);
-            ZOMBIES_3.addItem(GrassZombies.FOOTBALL_ZOMBIE, 90);
-            ZOMBIES_3.addItem(PoolZombies.ZOMBONI, 85);
-            ZOMBIES_3.addItem(PoolZombies.JACK_IN_BOX_ZOMBIE, 85);
-            ZOMBIES_3.addItem(PoolZombies.DIGGER_ZOMBIE, 75);
-            ZOMBIES_3.addItem(RoofZombies.LADDER_ZOMBIE, 85);
-            ZOMBIES_3.addItem(RoofZombies.CATAPULT_ZOMBIE, 80);
+            ZOMBIES_3.addItem(GrassZombies.FOOTBALL_ZOMBIE, 30);
+            ZOMBIES_3.addItem(GrassZombies.POLE_ZOMBIE, 30);
+            ZOMBIES_3.addItem(PoolZombies.JACK_IN_BOX_ZOMBIE, 30);
+            ZOMBIES_3.addItem(RoofZombies.LADDER_ZOMBIE, 30);
+            ZOMBIES_3.addItem(PoolZombies.ZOMBONI, 30);
+            ZOMBIES_3.addItem(RoofZombies.CATAPULT_ZOMBIE, 30);
+            ZOMBIES_3.addItem(PoolZombies.POGO_ZOMBIE, 30);
+            ZOMBIES_3.addItem(GrassZombies.NEWSPAPER_ZOMBIE, 30);
+            ZOMBIES_3.addItem(GrassZombies.SCREENDOOR_ZOMBIE, 30);
+            ZOMBIES_3.addItem(RoofZombies.GARGANTUAR, 30);
         }
         {//stage 4 zombies.
+            ZOMBIES_4.addItem(GrassZombies.CONEHEAD_ZOMBIE, 100);
+            ZOMBIES_4.addItem(GrassZombies.BUCKETHEAD_ZOMBIE, 100);
             ZOMBIES_4.addItem(GrassZombies.FOOTBALL_ZOMBIE, 100);
-            ZOMBIES_4.addItem(GrassZombies.GIGA_FOOTBALL_ZOMBIE, 80);
-            ZOMBIES_4.addItem(PoolZombies.ZOMBONI, 90);
-            ZOMBIES_4.addItem(CustomZombies.LAVA_ZOMBIE, 85);
-            ZOMBIES_4.addItem(PoolZombies.DIGGER_ZOMBIE, 75);
-            ZOMBIES_4.addItem(RoofZombies.CATAPULT_ZOMBIE, 90);
-            ZOMBIES_4.addItem(RoofZombies.GARGANTUAR, 85);
+            ZOMBIES_4.addItem(GrassZombies.POLE_ZOMBIE, 100);
+            ZOMBIES_4.addItem(PoolZombies.JACK_IN_BOX_ZOMBIE, 100);
+            ZOMBIES_4.addItem(RoofZombies.LADDER_ZOMBIE, 100);
+            ZOMBIES_4.addItem(PoolZombies.ZOMBONI, 100);
+            ZOMBIES_4.addItem(RoofZombies.CATAPULT_ZOMBIE, 100);
+            ZOMBIES_4.addItem(PoolZombies.POGO_ZOMBIE, 100);
+            ZOMBIES_4.addItem(GrassZombies.NEWSPAPER_ZOMBIE, 100);
+            ZOMBIES_4.addItem(GrassZombies.SCREENDOOR_ZOMBIE, 100);
+            ZOMBIES_4.addItem(RoofZombies.GARGANTUAR, 100);
         }
         {//stage 5 zombies.
-            ZOMBIES_5.addItem(GrassZombies.GIGA_FOOTBALL_ZOMBIE, 100);
-            ZOMBIES_5.addItem(GrassZombies.SUNDAY_EDITION_ZOMBIE, 85);
-            ZOMBIES_5.addItem(CustomZombies.LAVA_ZOMBIE, 95);
-            ZOMBIES_5.addItem(RoofZombies.CATAPULT_ZOMBIE, 110);
+            ZOMBIES_5.addItem(GrassZombies.CONEHEAD_ZOMBIE, 100);
+            ZOMBIES_5.addItem(GrassZombies.BUCKETHEAD_ZOMBIE, 100);
+            ZOMBIES_5.addItem(GrassZombies.FOOTBALL_ZOMBIE, 100);
+            ZOMBIES_5.addItem(GrassZombies.POLE_ZOMBIE, 100);
+            ZOMBIES_5.addItem(PoolZombies.JACK_IN_BOX_ZOMBIE, 100);
+            ZOMBIES_5.addItem(RoofZombies.LADDER_ZOMBIE, 100);
+            ZOMBIES_5.addItem(PoolZombies.ZOMBONI, 100);
+            ZOMBIES_5.addItem(RoofZombies.CATAPULT_ZOMBIE, 100);
+            ZOMBIES_5.addItem(PoolZombies.POGO_ZOMBIE, 100);
+            ZOMBIES_5.addItem(GrassZombies.NEWSPAPER_ZOMBIE, 100);
+            ZOMBIES_5.addItem(GrassZombies.SCREENDOOR_ZOMBIE, 100);
             ZOMBIES_5.addItem(RoofZombies.GARGANTUAR, 100);
-            ZOMBIES_5.addItem(RoofZombies.GIGA_GARGANTUAR, 70);
         }
     }
 
-    public EdgarRobotEntity(EntityType<? extends PathfinderMob> type, Level worldIn) {
+    public AbstractEdgarZombotEntity(EntityType<? extends PathfinderMob> type, Level worldIn) {
         super(type, worldIn);
         this.setIsWholeBody();
         this.shootBallTick = this.getShootBallCD();
         this.stealPlantTick = this.getStealPlantCD();
-        this.throwCarTick = this.getThrowCarCD();
     }
 
     @Override
@@ -117,7 +141,6 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
     protected void registerAttackGoals() {
         this.goalSelector.addGoal(4, new EdgarShootBallGoal(this));
         this.goalSelector.addGoal(5, new EdgarStealPlantGoal(this));
-        this.goalSelector.addGoal(3, new EdgarThrowCarGoal(this));
     }
 
     @Override
@@ -126,45 +149,37 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
     }
 
     @Override
-    public void normalZombieTick() {
-        super.normalZombieTick();
-        if (!level.isClientSide()) {
-            if(this.getExistTick() % 100 == 0){
-                this.summonZombieByBungee();
-            }
-        }
-    }
-
-    @Override
     public boolean canPAZTarget(Entity target) {
         return true;
     }
 
-    /**
-     * Skill : Summon Zombie by Bungee
-     */
-    public void summonZombieByBungee() {
-        if (this.nearbyZombieCount < this.maxZombieSurround) {//too many zombies nearby
-            final int count = this.getSpawnCount();
-            for (int i = 0; i < count; ++i) {
-            this.getSummonZombie().ifPresent(entity -> {
-                if(entity instanceof PVZZombieEntity){
-                    this.onBossSummon((PVZZombieEntity) entity, blockPosition().above(10));
+    //ZOMBIE_BOSS can only be chilled or frozen while its head is lowered to spit.
+    @Override
+    public boolean canBeCold() {
+        return this.getRobotState() == EdgarStates.FLAME || this.getRobotState() == EdgarStates.ICE;
+    }
 
-                    BungeeZombieEntity bungee = EntityRegister.BUNGEE_ZOMBIE.get().create(this.level);
-                    bungee.setBungeeType(BungeeZombieEntity.BungeeTypes.SUMMON);
-                    bungee.setBungeeState(BungeeZombieEntity.BungeeStates.DOWN);
-                    bungee.setStealTarget(entity);
-                    BlockPos pos = this.getRandom().nextInt(5) == 0 ?
-                            WorldUtil.getSuitableHeightRandomPos(this.level, blockPosition(), 20, 40) :
-                            WorldUtil.getSuitableHeightRandomPos(this.level, blockPosition(), 3, 8);
-                    this.onBossSummon(bungee, pos.above(20));
+    @Override
+    public boolean canBeFrozen() {
+        return this.getRobotState() == EdgarStates.FLAME || this.getRobotState() == EdgarStates.ICE;
+    }
 
-                    EntityUtil.playSound(bungee, SoundRegister.BUNGEE_SCREAM.get());
+    @Override
+    public void zombieTick() {
+        super.zombieTick();
+        if (! level.isClientSide()) {
+            for (BungeeZombieEntity zombie : this.stealBungees) {
+                if (zombie.isAlive()) {
+                    zombie.setOriginPos(this.getBungeeAnchorPos());
                 }
-            });
             }
         }
+    }
+
+    //ZOMBIE_BOSS is rejected unconditionally in Zombie::ApplyButter, even while its head is lowered.
+    @Override
+    public boolean canBeButtered() {
+        return false;
     }
 
     @Override
@@ -201,14 +216,29 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
         final ElementBallEntity ball = EntityRegister.ELEMENT_BALL.get().create(level);
         ball.summonByOwner(this);
         ball.setSpeed(this.getElementBallSpeed());
-        ball.setAuto(this.shootAutoBall());
-        ball.setPos(getX(), getY() + this.getEyeHeight(), getZ());
-        ball.shoot(this.getTarget());
-        ball.setElementBallType(this.getRobotState() == EdgarRobotEntity.EdgarStates.ICE ? ElementBallEntity.ElementTypes.ICE : ElementBallEntity.ElementTypes.FLAME);
+        final Vec3 spawnPos = this.getElementBallSpawnPos();
+        ball.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
+        ball.shoot(this.getElementBallDirection(ball));
+        ball.setElementBallType(this.getRobotState() == AbstractEdgarZombotEntity.EdgarStates.ICE ? ElementBallEntity.ElementTypes.ICE : ElementBallEntity.ElementTypes.FLAME);
         this.level.addFreshEntity(ball);
-        this.setRobotState(EdgarRobotEntity.EdgarStates.NORMAL);
 
         this.shootBallTick = this.getShootBallCD() + MathUtil.getRandomInRange(this.getRandom(), 80);
+    }
+
+    protected Vec3 getElementBallSpawnPos() {
+        return new Vec3(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
+    }
+
+    protected Vec3 getElementBallDirection(ElementBallEntity ball) {
+        final LivingEntity target = this.getTarget();
+        if (target != null) {
+            return target.position().subtract(ball.position());
+        }
+        return this.getLookAngle();
+    }
+
+    public int getShootFireTick() {
+        return this.getAnimShootCD() + 1;
     }
 
     /**
@@ -216,7 +246,7 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
      * {@link EdgarStealPlantGoal#tick()}
      */
     public void stealRandomTargets() {
-        this.setRobotState(EdgarRobotEntity.EdgarStates.NORMAL);
+        this.stealBungees.clear();
         final int cnt = this.getStealCount();
         final float range = 50;
         List<LivingEntity> list = EntityUtil.getTargetableLivings(this, EntityUtil.getEntityAABB(this, range, range));
@@ -227,39 +257,39 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
                 zombie.setBungeeType(BungeeZombieEntity.BungeeTypes.STEAL);
                 zombie.setStealTarget(target);
                 zombie.setBungeeState(BungeeZombieEntity.BungeeStates.DOWN);
+                zombie.setOriginLocked(true);
                 ZombieUtil.copySummonZombieData(this, zombie);
-                EntityUtil.onEntitySpawn(level, zombie, blockPosition().above(18));
+                EntityUtil.onEntitySpawn(level, zombie, this.getBungeeSpawnPos());
+                this.stealBungees.add(zombie);
             }
         }
-
-        this.stealPlantTick= this.getStealPlantCD() + MathUtil.getRandomInRange(this.getRandom(), 120);
     }
 
-    /**
-     * Skill : throw destroy car to random target.
-     * {@link EdgarThrowCarGoal#tick()}
-     */
-    public void throwDestroyCar() {
-        this.setRobotState(EdgarRobotEntity.EdgarStates.NORMAL);
-        final int max = Math.max(1, (this.nearbyPlantCount - this.maxPlantSurround) / 10);
-        final int throwNum = MathUtil.getRandomMinMax(getRandom(), max / 2 + 1, max + 1);
-        final float range = 50;
-        final List<LivingEntity> list = EntityUtil.getTargetableLivings(this, EntityUtil.getEntityAABB(this, range, range));
-        if (! list.isEmpty()) {
-            for (int i = 0; i < throwNum; ++i) {
-                final int pos = this.getRandom().nextInt(list.size());
-                DestroyCarEntity car = EntityRegister.DESTROY_CAR.get().create(this.level);
-                car.summonByOwner(this);
-                car.setPos(getX(), getY() + this.getEyeHeight(), getZ());
-                car.shootPultBullet(list.get(pos));
-                level.addFreshEntity(car);
+    protected boolean areStealBungeesDone() {
+        int remaining = 0;
+        boolean anyRising = false;
+        for (BungeeZombieEntity zombie : this.stealBungees) {
+            if (zombie.isAlive()) {
+                if (zombie.getBungeeState() == BungeeZombieEntity.BungeeStates.UP) {
+                    anyRising = true;
+                } else {
+                    ++ remaining;
+                }
             }
         }
+        return anyRising || remaining == 0;
+    }
 
-        this.throwCarTick = this.getThrowCarCD() + MathUtil.getRandomInRange(this.getRandom(), 160);
+    protected BlockPos getBungeeSpawnPos() {
+        return this.blockPosition().above(18);
+    }
+
+    public Vec3 getBungeeAnchorPos() {
+        return Vec3.atBottomCenterOf(this.getBungeeSpawnPos());
     }
 
     protected Optional<? extends Mob> getSummonZombie() {
+        // TODO 原作召唤分段按僵王存活时间（3500/8000/12500 更新），此处暂按剩余血量 stage，后续改为按存活时间
         final int stage = getBossStage();
         IZombieType zombieType;
         if (stage == 1) zombieType = ZOMBIES_1.getRandomItem(this.getRandom()).get();
@@ -287,20 +317,12 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
         return 3;
     }
 
-    public int getSpawnCount(){
-        return 2;
-    }
-
-    public boolean shootAutoBall(){
-        return false;
+    public int getAnimSpawnCD() {
+        return 50;
     }
 
     public int getShootBallCD() {
         return 600;
-    }
-
-    public int getThrowCarCD() {
-        return 800;
     }
 
     public int getStealPlantCD() {
@@ -328,9 +350,6 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
         if (this.hasCustomName()) {
             this.bossInfo.setName(this.getDisplayName());
         }
-        if (compound.contains("zomboss_throw_car_tick")) {
-            this.throwCarTick = compound.getInt("zomboss_throw_car_tick");
-        }
         if (compound.contains("zomboss_shoot_ball_cd")) {
             this.shootBallTick = compound.getInt("zomboss_shoot_ball_cd");
         }
@@ -343,7 +362,6 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("zomboss_state", this.getRobotState().ordinal());
-        compound.putInt("zomboss_throw_car_tick", this.throwCarTick);
         compound.putInt("zomboss_shoot_ball_cd", this.shootBallTick);
         compound.putInt("zomboss_steal_cd", this.stealPlantTick);
     }
@@ -372,22 +390,28 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
         ICE,//blue eyes
         STEAL,
         CAR,
+        SPAWN,
     }
 
     protected static class EdgarShootBallGoal extends Goal {
 
-        private final EdgarRobotEntity edgarRobot;
+        private final AbstractEdgarZombotEntity edgarRobot;
 
-        public EdgarShootBallGoal(EdgarRobotEntity edgarRobot){
+        public EdgarShootBallGoal(AbstractEdgarZombotEntity edgarRobot){
             this.edgarRobot = edgarRobot;
+            this.setFlags(EnumSet.of(Goal.Flag.LOOK));
         }
 
         @Override
         public boolean canUse() {
+            final EdgarStates state = this.edgarRobot.getRobotState();
+            if (state == EdgarStates.FLAME || state == EdgarStates.ICE) {
+                return true;
+            }
             if(-- this.edgarRobot.shootBallTick > 0){
                 return false;
             }
-            return this.edgarRobot.getTarget() != null && this.edgarRobot.getRobotState() == EdgarStates.NORMAL;
+            return this.edgarRobot.getTarget() != null && state == EdgarStates.NORMAL;
         }
 
         @Override
@@ -397,18 +421,31 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
 
         @Override
         public void start() {
-            this.edgarRobot.setRobotState(this.edgarRobot.getRandom().nextInt(2) == 0 ? EdgarStates.FLAME : EdgarStates.ICE);
-            this.edgarRobot.bossInfo.getPlayers().forEach(p -> {
-                PlayerUtil.playClientSound(p, SoundRegister.EDGAR_SHOOT.get());
-            });
-            this.edgarRobot.setAttackTime(0);
+            if (this.edgarRobot.getRobotState() == EdgarStates.NORMAL) {
+                this.edgarRobot.setRobotState(this.edgarRobot.getRandom().nextInt(2) == 0 ? EdgarStates.FLAME : EdgarStates.ICE);
+                this.edgarRobot.bossInfo.getPlayers().forEach(p -> {
+                    PlayerUtil.playClientSound(p, SoundRegister.EDGAR_SHOOT.get());
+                });
+                this.edgarRobot.setAttackTime(0);
+            }
         }
 
         @Override
         public void tick() {
-            this.edgarRobot.setAttackTime(this.edgarRobot.getAttackTime() + 1);
-            if(this.edgarRobot.getAttackTime() > this.edgarRobot.getAnimShootCD()){
-                this.edgarRobot.shootElementBall();
+            //goalSelector keeps running while frozen; hold attackTime so the shot waits until thaw.
+            if (this.edgarRobot.canNormalUpdate()) {
+                final LivingEntity target = this.edgarRobot.getTarget();
+                if (target != null) {
+                    this.edgarRobot.getLookControl().setLookAt(target.getX(), target.getEyeY(), target.getZ());
+                }
+                this.edgarRobot.setAttackTime(this.edgarRobot.getAttackTime() + 1);
+                final int shootTime = this.edgarRobot.getAttackTime();
+                if(shootTime == this.edgarRobot.getShootFireTick()){
+                    this.edgarRobot.shootElementBall();
+                }
+                if(shootTime >= this.edgarRobot.getAnimShootCD()){
+                    this.edgarRobot.setRobotState(EdgarStates.NORMAL);
+                }
             }
         }
 
@@ -420,14 +457,17 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
 
     protected static class EdgarStealPlantGoal extends Goal {
 
-        private final EdgarRobotEntity edgarRobot;
+        private final AbstractEdgarZombotEntity edgarRobot;
 
-        public EdgarStealPlantGoal(EdgarRobotEntity edgarRobot){
+        public EdgarStealPlantGoal(AbstractEdgarZombotEntity edgarRobot){
             this.edgarRobot = edgarRobot;
         }
 
         @Override
         public boolean canUse() {
+            if (this.edgarRobot.getRobotState() == EdgarStates.STEAL) {
+                return true;
+            }
             if(-- this.edgarRobot.stealPlantTick > 0){
                 return false;
             }
@@ -441,56 +481,31 @@ public abstract class EdgarRobotEntity extends AbstractBossZombieEntity {
 
         @Override
         public void start() {
-            this.edgarRobot.setRobotState(EdgarStates.STEAL);
-            this.edgarRobot.setAttackTime(0);
-        }
-
-        @Override
-        public void tick() {
-            this.edgarRobot.setAttackTime(this.edgarRobot.getAttackTime() + 1);
-            if(this.edgarRobot.getAttackTime() > this.edgarRobot.getAnimStealCD()){
-                this.edgarRobot.stealRandomTargets();
+            if (this.edgarRobot.getRobotState() == EdgarStates.NORMAL) {
+                this.edgarRobot.setRobotState(EdgarStates.STEAL);
+                this.edgarRobot.setAttackTime(0);
             }
         }
 
         @Override
-        public void stop() {
-            this.edgarRobot.setAttackTime(0);
-        }
-    }
-
-    protected static class EdgarThrowCarGoal extends Goal {
-
-        private final EdgarRobotEntity edgarRobot;
-
-        public EdgarThrowCarGoal(EdgarRobotEntity edgarRobot){
-            this.edgarRobot = edgarRobot;
-        }
-
-        @Override
-        public boolean canUse() {
-            if(-- this.edgarRobot.throwCarTick > 0){
-                return false;
-            }
-            return this.edgarRobot.getTarget() != null && this.edgarRobot.getRobotState() == EdgarStates.NORMAL && this.edgarRobot.nearbyPlantCount > 40;
-        }
-
-        @Override
-        public boolean canContinueToUse() {
-            return this.edgarRobot.getRobotState() == EdgarStates.CAR;
-        }
-
-        @Override
-        public void start() {
-            this.edgarRobot.setRobotState(EdgarStates.CAR);
-            this.edgarRobot.setAttackTime(0);
-        }
-
-        @Override
         public void tick() {
-            this.edgarRobot.setAttackTime(this.edgarRobot.getAttackTime() + 1);
-            if(this.edgarRobot.getAttackTime() > this.edgarRobot.getAnimThrowCD()){
-                this.edgarRobot.throwDestroyCar();
+            //goalSelector keeps running while frozen; hold attackTime so the whole bungee sequence waits until thaw.
+            if (this.edgarRobot.canNormalUpdate()) {
+                final int now = this.edgarRobot.getAttackTime();
+                final int front = this.edgarRobot.getAnimStealCD() * 2 / 5;
+                if (now < front) {
+                    this.edgarRobot.setAttackTime(now + 1);
+                    if (now + 1 == front) {
+                        this.edgarRobot.stealRandomTargets();
+                    }
+                } else if (now < this.edgarRobot.getAnimStealCD()) {
+                    if (this.edgarRobot.areStealBungeesDone()) {
+                        this.edgarRobot.setAttackTime(now + 1);
+                    }
+                } else {
+                    this.edgarRobot.stealPlantTick = this.edgarRobot.getStealPlantCD() + MathUtil.getRandomInRange(this.edgarRobot.getRandom(), 120);
+                    this.edgarRobot.setRobotState(EdgarStates.NORMAL);
+                }
             }
         }
 

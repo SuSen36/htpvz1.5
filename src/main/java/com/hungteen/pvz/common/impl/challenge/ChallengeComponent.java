@@ -32,6 +32,7 @@ public class ChallengeComponent implements IChallengeComponent {
 
 	public static final String NAME = "default";
 	private static final int DEFAULT_SEED_WEIGHT = 100;
+	private static final int DEFAULT_PREPARE_TICK = 20;
 	private final List<IWaveComponent> waves = new ArrayList<>();
 	private final List<IRewardComponent> rewards = new ArrayList<>();
 	private final Set<String> tags = new HashSet<>();
@@ -49,6 +50,7 @@ public class ChallengeComponent implements IChallengeComponent {
 	private SoundEvent winSound = SoundRegister.WIN_MUSIC.get();
 	private SoundEvent lossSound = SoundRegister.LOSE_MUSIC.get();
 	private SoundEvent bgmSound = SoundRegister.CHALLENGE_BGM.get();
+	private int prepareTick;
 	private int winTick;
 	private int lossTick;
 	/* for trade */
@@ -124,6 +126,7 @@ public class ChallengeComponent implements IChallengeComponent {
 		}
 		/* raid cd */
 		{
+		    this.prepareTick = GsonHelper.getAsInt(json, "prepare_tick", DEFAULT_PREPARE_TICK);
 		    this.winTick = GsonHelper.getAsInt(json, "win_tick", 400);
 		    this.lossTick = GsonHelper.getAsInt(json, "loss_tick", 200);
 		}
@@ -183,6 +186,16 @@ public class ChallengeComponent implements IChallengeComponent {
 		{
 			this.placement = ChallengeManager.readPlacement(json, true);
 		}
+	    /* boss spawn */
+	    {
+		    final JsonObject obj = GsonHelper.getAsJsonObject(json, "boss", null);
+		    if(obj != null) {
+			    final ISpawnComponent spawn = ChallengeManager.getSpawnComponent(SpawnComponent.NAME);
+			    if(spawn.readJson(obj)) {
+				    this.bossSpawn = spawn;
+			    }
+		    }
+	    }
 		/* waves */
 		JsonArray jsonWaves = GsonHelper.getAsJsonArray(json, "waves", new JsonArray());
 		if(jsonWaves != null) {
@@ -198,21 +211,10 @@ public class ChallengeComponent implements IChallengeComponent {
 			    }
 			}
 		}
-	    if(this.waves.isEmpty()) {// mandatory !
+	    if(this.waves.isEmpty() && this.bossSpawn == null) {
 		    throw new JsonSyntaxException("Wave list cannot be empty");
 	    }
 
-	    /* boss spawn */
-	    {
-		    final JsonObject obj = GsonHelper.getAsJsonObject(json, "boss", null);
-		    if(obj != null) {
-			    final ISpawnComponent spawn = ChallengeManager.getSpawnComponent(SpawnComponent.NAME);
-			    if(spawn.readJson(obj)) {
-				    this.bossSpawn = spawn;
-			    }
-		    }
-	    }
-	    
 	    /* rewards */
 	    {
 	    	JsonObject obj = GsonHelper.getAsJsonObject(json, "rewards", null);
@@ -290,7 +292,7 @@ public class ChallengeComponent implements IChallengeComponent {
 
 	@Override
 	public int getPrepareCD(int wavePos) {
-		return this.waves.get(this.wavePos(wavePos)).getPrepareCD();
+		return this.waves.isEmpty() ? this.prepareTick : this.waves.get(this.wavePos(wavePos)).getPrepareCD();
 	}
 
 	@Override

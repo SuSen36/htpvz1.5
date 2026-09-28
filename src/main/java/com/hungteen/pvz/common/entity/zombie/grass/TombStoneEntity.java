@@ -5,7 +5,7 @@ import com.hungteen.pvz.common.entity.EntityRegister;
 import com.hungteen.pvz.common.entity.plant.assist.GraveBusterEntity;
 import com.hungteen.pvz.common.entity.zombie.PVZZombieEntity;
 import com.hungteen.pvz.common.entity.zombie.other.NobleZombieEntity;
-import com.hungteen.pvz.common.entity.zombie.roof.Edgar090505Entity;
+import com.hungteen.pvz.common.entity.zombie.roof.ZombotEntity;
 import com.hungteen.pvz.common.impl.zombie.GrassZombies;
 import com.hungteen.pvz.common.impl.zombie.ZombieType;
 import com.hungteen.pvz.utils.EntityUtil;
@@ -37,7 +37,7 @@ public class TombStoneEntity extends AbstractTombStoneEntity {
 	protected void registerGoals() {
 		this.goalSelector.addGoal(0, new TombStoneSummonZombieGoal(this));
 		this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, NobleZombieEntity.class, true));
-		this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Edgar090505Entity.class, true));
+		this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, ZombotEntity.class, true));
 	}
 
 	public void activateByWave() {

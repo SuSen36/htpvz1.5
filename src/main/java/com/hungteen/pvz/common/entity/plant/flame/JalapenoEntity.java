@@ -18,6 +18,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.ForgeEventFactory;
 
 public class JalapenoEntity extends PlantBomberEntity{
 
@@ -30,10 +31,8 @@ public class JalapenoEntity extends PlantBomberEntity{
 		final float range = this.getExplodeRange();
 		if(server) {
 			//deal damage.
-			fireMob(this, range, 1F);
-		    fireMob(this, 1F, range);
-		    //clear ice balls.
-		    ElementBallEntity.killElementBalls(this, 40, ElementTypes.ICE);
+			fireTarget(this, range, 1F);
+		    fireTarget(this, 1F, range);
 			EntityUtil.playSound(this, SoundRegister.JALAPENO.get());
 		}
 		clearSnowAndSpawnFlame(this, (int) range);
@@ -43,9 +42,13 @@ public class JalapenoEntity extends PlantBomberEntity{
 	 * jalapeno fire mobs.
 	 * {@link #startBomb(boolean)}
 	 */
-	public static void fireMob(LivingEntity entity, float dx, float dz) {
+	public static void fireTarget(LivingEntity entity, float dx, float dz) {
 		final AABB aabb = new AABB(entity.position().add(dx, 1, dz), entity.position().add(- dx, - 1, - dz));
 		for(Entity target : EntityUtil.getWholeTargetableEntities(entity, aabb)) {
+			if(target instanceof ElementBallEntity elementBall && elementBall.getElementBallType() == ElementTypes.ICE) {
+				target.discard();
+				continue;
+			}
 			float damage = 0;
 			if(entity instanceof JalapenoEntity jalapeno) {
 				damage = jalapeno.getExplodeDamage();
@@ -66,22 +69,15 @@ public class JalapenoEntity extends PlantBomberEntity{
 	 * {@link #startBomb(boolean)}
 	 */
 	public static void clearSnowAndSpawnFlame(LivingEntity entity, int range) {
-		final boolean flag = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(entity.level, entity);
-		//handle cross .
+		final boolean flag = ForgeEventFactory.getMobGriefingEvent(entity.level, entity);
 		for(int i = - range; i <= range; ++ i) {
 			spawnFlame(entity, i, 0);
 			spawnFlame(entity, 0, i);
 			if(flag) {
-				clearSnow(entity, i, 0);
-				clearSnow(entity, 0, i);
-			}
-		}
-		//clear range snow.
-		if(flag) {
-			for(int i = - range / 2; i <= range / 2; ++ i) {
-			    for(int j = - range / 2; j <= range / 2; ++ j) {
-				    clearSnow(entity, i, j);
-			    }
+				for(int j = - 1; j <= 1; ++ j) {
+					clearSnow(entity, i, j);
+					clearSnow(entity, j, i);
+				}
 			}
 		}
 	}

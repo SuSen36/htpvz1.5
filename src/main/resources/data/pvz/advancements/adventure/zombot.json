@@ -5,10 +5,10 @@
       "item": "pvz:challenge_envelope"
     },
     "title": {
-      "translate": "advancement.pvz.edgar_090505"
+      "translate": "advancement.pvz.zombot"
     },
     "description": {
-      "translate": "advancement.pvz.edgar_090505.desc"
+      "translate": "advancement.pvz.zombot.desc"
     },
 	"frame":"task",
     "show_toast": true,

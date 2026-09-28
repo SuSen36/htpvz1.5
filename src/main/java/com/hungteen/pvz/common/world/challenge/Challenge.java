@@ -14,7 +14,6 @@ import com.hungteen.pvz.common.entity.AbstractPAZEntity;
 import com.hungteen.pvz.common.entity.EntityRegister;
 import com.hungteen.pvz.common.entity.ai.goal.ChallengeMoveGoal;
 import com.hungteen.pvz.common.entity.misc.drop.SeedPacketEntity;
-import com.hungteen.pvz.common.entity.zombie.base.AbstractBossZombieEntity;
 import com.hungteen.pvz.common.item.spawn.card.PlantCardItem;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.common.network.PVZFogPacket;
@@ -68,6 +67,7 @@ public class Challenge implements IChallenge {
 	private static final String TAG_FOG = "fog";
 	private static final String TAG_SEED_RAIN = "seed_rain";
 	private static final String TAG_CONVEYOR = "conveyor";
+	private static final String TAG_BOWLING = "bowling";
 	//带上最多10张卡，首张200cs后出现，之后按带上张数分档补卡（原版数值单位为cs，换算tick需除以5）
 	private static final int CONVEYOR_MAX_CARDS = 10;
 	private static final int CONVEYOR_INITIAL_DELAY = 40;
@@ -142,6 +142,9 @@ public class Challenge implements IChallenge {
 			CompoundTag tmp = nbt.getCompound("center_pos");
 			this.center = new BlockPos(tmp.getInt("pos_x"), tmp.getInt("pos_y"), tmp.getInt("pos_z"));
 		}
+		if(nbt.contains("boss_id")) {
+			this.bossId = NbtUtils.loadUUID(nbt.get("boss_id"));
+		}
 		{// for raiders entity id.
 			ListTag list = nbt.getList("raiders", 11);
             for (Tag tag : list) {
@@ -188,6 +191,9 @@ public class Challenge implements IChallenge {
 		    tmp.putInt("pos_y", this.center.getY());
 			tmp.putInt("pos_z", this.center.getZ());
 			nbt.put("center_pos", tmp);
+		}
+		if(this.bossId != null) {
+			nbt.put("boss_id", NbtUtils.createUUID(this.bossId));
 		}
 		{// for raiders entity id.
 			ListTag list = new ListTag();
@@ -252,7 +258,8 @@ public class Challenge implements IChallenge {
 		if(this.isPreparing()) {
 			/* prepare state */
 			final int prepareCD = this.challenge.getPrepareCD(this.currentWave);
-			final boolean isBigWave = this.getCurrentWaveComponent().isBigWave();
+			final IWaveComponent wave = this.getCurrentWaveComponent();
+			final boolean isBigWave = wave != null && wave.isBigWave();
 			if(! this.warningSent && prepareCD >= WAVE_WARNING_TICK && this.tick >= prepareCD - WAVE_WARNING_TICK && isBigWave) {
 				this.warningSent = true;
 				if(this.getRaidComponent().showRoundTitle()) {
@@ -267,7 +274,11 @@ public class Challenge implements IChallenge {
 				this.getPlayers().forEach(p -> PlayerUtil.playClientSound(p, SoundRegister.HUGE_WAVE.get()));
 			}
 			if(this.tick >= prepareCD) {
-				this.waveStart();
+				if(wave != null) {
+					this.waveStart();
+				} else {
+					this.status = Status.RUNNING;
+				}
 			}
 		} else if(this.isRunning()) {
 			/* running state, whole wave spawns at wave start, only the countdown to next wave is ticked */
@@ -285,7 +296,8 @@ public class Challenge implements IChallenge {
 					this.syncBar();
 				}
 				//boss 挑战：boss 死亡即胜利（对齐 pvz1 5-10 进度条打满过关）
-				if(this.isBossChallenge() && ! this.isBossAlive()) {
+				//boss 所在区块未加载时 getBossEntity 返回 null，须有玩家在场（区块已加载）才能把找不到 boss 当作击杀
+				if(this.isBossChallenge() && this.bossId != null && ! this.getPlayers().isEmpty() && ! this.isBossAlive()) {
 					this.status = Status.VICTORY;
 					this.syncBar();
 				}
@@ -368,6 +380,10 @@ public class Challenge implements IChallenge {
 		return this.hasTag(TAG_CONVEYOR) && this.challenge.getSeedPool() != null;
 	}
 
+	public boolean hasBowling() {
+		return this.hasTag(TAG_BOWLING);
+	}
+
 	public void spawnSeedPacket(BlockPos pos) {
 		final WeightList<ItemStack> pool = this.challenge.getSeedPool();
 		final Optional<ItemStack> card = pool.getRandomItem(this.world.random);
@@ -441,19 +457,25 @@ public class Challenge implements IChallenge {
 	}
 
 	/**
-	 * 取走带上指定卡：走原版拾取语义（快捷栏优先、可堆叠），背包放不下则卡片留在带上。
+	 * 取走带上指定卡：走原版拾取语义（快捷栏优先、可堆叠），背包放不下或已持有挑战体验卡则卡片留在带上。
 	 */
 	public void takeConveyorCard(ServerPlayer player, int index) {
 		final ConveyorBelt belt = this.conveyorBelts.get(player.getUUID());
 		if(belt != null && index >= 0 && index < belt.cards.size()) {
 			final ItemStack cardStack = belt.cards.get(index);
-			if(player.getInventory().add(cardStack.copy())) {
+			boolean holdingCard = false;
+			for(int i = 0; i < player.getInventory().getContainerSize(); ++ i) {
+				if(PlantCardItem.getChallengeUuid(player.getInventory().getItem(i)) != null) {
+					holdingCard = true;
+					break;
+				}
+			}
+			if(holdingCard) {
+				player.displayClientMessage(Component.translatable("challenge.pvz.conveyor_holding"), true);
+			} else if(player.getInventory().add(cardStack.copy())) {
 				belt.cards.remove(index);
 				belt.entryTicks.remove(index);
-				//重置入场时刻，客户端据此把后方卡片滑入空出的槽位
-				for(int i = index; i < belt.cards.size(); ++ i) {
-					belt.entryTicks.set(i, this.world.getGameTime());
-				}
+				//入场时刻刻意不重置：槽位下标前移一格，滑动余量随之自动多出一格，卡片原地续滑进空槽
 				this.syncConveyorBeltTo(player);
 			} else {
 				player.displayClientMessage(Component.translatable("challenge.pvz.conveyor_full"), true);
@@ -617,7 +639,6 @@ public class Challenge implements IChallenge {
 	 * settles immediately on the last member removal instead of waiting out the remaining minimum wait.
 	 */
 	public boolean trySwitchWave() {
-		final IWaveComponent wave = this.getCurrentWaveComponent();
 		final boolean isFinalWave = this.currentWave >= this.challenge.getTotalWaveCount() - 1;
 		if(isFinalWave) {
 			//boss 挑战胜利由 boss 死亡单独判定，小怪清空不结算
@@ -627,6 +648,7 @@ public class Challenge implements IChallenge {
 			}
 			return false;
 		}
+		final IWaveComponent wave = this.getCurrentWaveComponent();
 		if(this.tick < wave.getMinimumWaitTime()) {
 			return false;
 		}
@@ -755,8 +777,8 @@ public class Challenge implements IChallenge {
 				this.syncBarTo(p);
 				//挑战期间禁止僵尸入侵叠加：清空入侵波次与任务，入侵进度条随之消失
 				PlayerUtil.getInvasion(p).disable();
-				//带面为空时也要下发，玩家一进范围即显示带子
-				if(this.hasConveyorBelt()) {
+				//带面为空时也要下发，玩家一进范围即显示带子；终态带面已撤，重进范围不能又补一条空带
+				if(this.hasConveyorBelt() && (this.isPreparing() || this.isRunning())) {
 					this.conveyorBelts.computeIfAbsent(p.getUUID(), uuid -> new ConveyorBelt());
 					this.syncConveyorBeltTo(p);
 				}
@@ -806,10 +828,11 @@ public class Challenge implements IChallenge {
 	}
 
 	/**
-	 * boss 挑战开局生成 boss 实体，并禁用其自带 Boss 条（挑战 bar 接管，对齐 pvz1 5-10）。
+	 * boss 挑战开局生成 boss 实体；自带 Boss 条让位给挑战 bar，隐藏标记随 nbt 生成、由实体自身读取。
 	 */
 	protected void summonBoss() {
 		final ISpawnComponent boss = this.challenge.getBossSpawn();
+		boss.getNBT().putBoolean("boss_bar_visible", false);
 		final Entity entity = this.createEntity(boss);
 		if(entity == null) {
 			PVZMod.LOGGER.warn("Challenge Boss Summon Fail : {}", this.resource);
@@ -819,9 +842,6 @@ public class Challenge implements IChallenge {
 		this.bossId = entity.getUUID();
 		if(entity instanceof Mob) {
 			((Mob) entity).setPersistenceRequired();
-		}
-		if(entity instanceof AbstractBossZombieEntity) {
-			((AbstractBossZombieEntity) entity).setBossBarVisible(false);
 		}
 	}
 
@@ -900,7 +920,7 @@ public class Challenge implements IChallenge {
 
 	private IWaveComponent getCurrentWaveComponent() {
 		final List<IWaveComponent> waves = this.challenge.getWaves();
-		return waves.get(Mth.clamp(this.currentWave, 0, waves.size() - 1));
+		return waves.isEmpty() ? null : waves.get(Mth.clamp(this.currentWave, 0, waves.size() - 1));
 	}
 
 	/**
@@ -923,6 +943,11 @@ public class Challenge implements IChallenge {
 		this.releaseAllSunSessions();
 		//终态重发bar包驱动BGM淡出，bar标题仍保留到remove
 		this.syncBar();
+		//结算到 remove 之间还要等 loss tick，带面留到那时会继续挂在屏幕上
+		if(this.hasConveyorBelt()) {
+			this.conveyorBelts.clear();
+			this.getPlayers().forEach(p -> PVZPacketHandler.sendToClient(p, ConveyorBeltPacket.remove()));
+		}
 		this.getPlayers().forEach(p -> PlayerUtil.playClientSound(p, this.challenge.getLossSound()));
 		MinecraftForge.EVENT_BUS.post(new RaidEvent.RaidLossEvent(this));
 	}
@@ -935,6 +960,11 @@ public class Challenge implements IChallenge {
 		this.releaseAllSunSessions();
 		//终态重发bar包驱动BGM淡出，bar标题仍保留到remove
 		this.syncBar();
+		//结算到 remove 之间还要等 win tick，带面留到那时会继续挂在屏幕上
+		if(this.hasConveyorBelt()) {
+			this.conveyorBelts.clear();
+			this.getPlayers().forEach(p -> PVZPacketHandler.sendToClient(p, ConveyorBeltPacket.remove()));
+		}
 		this.getPlayers().forEach(p -> {
 			PlayerUtil.playClientSound(p, this.challenge.getWinSound());
 			ChallengeTrigger.INSTANCE.trigger(p, this.resource.toString());

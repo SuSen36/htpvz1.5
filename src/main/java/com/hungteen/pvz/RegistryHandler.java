@@ -18,14 +18,15 @@ import com.hungteen.pvz.common.impl.plant.PVZPlants;
 import com.hungteen.pvz.common.impl.zombie.*;
 import com.hungteen.pvz.common.item.ItemRegister;
 import com.hungteen.pvz.common.item.misc.PVZSpawnEggItem;
+import com.hungteen.pvz.common.misc.DataSerializerRegister;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.potion.EffectRegister;
 import com.hungteen.pvz.common.potion.PotionRecipeHandler;
 import com.hungteen.pvz.common.potion.PotionRegister;
 import com.hungteen.pvz.common.recipe.RecipeRegister;
-import com.hungteen.pvz.common.register.PVZBiomeModifier;
-import com.hungteen.pvz.common.register.PVZBiomes;
+import com.hungteen.pvz.common.world.PVZBiomeModifier;
+import com.hungteen.pvz.common.world.PVZBiomes;
 import com.hungteen.pvz.common.world.challenge.ChallengeManager;
 import com.hungteen.pvz.common.world.feature.FeatureRegister;
 import com.hungteen.pvz.common.world.structure.StructureRegister;
@@ -63,6 +64,7 @@ public class RegistryHandler {
 		RecipeRegister.RECIPE_TYPES.register(bus);
 		RecipeRegister.RECIPE_SERIALIZERS.register(bus);
 		PVZAttributes.ATTRIBUTES.register(bus);
+		DataSerializerRegister.DATA_SERIALIZERS.register(bus);
 		PVZBiomes.BIOMES.register(bus);
 		PVZBiomeModifier.BIOME_MODIFIER.register(bus);
 	}

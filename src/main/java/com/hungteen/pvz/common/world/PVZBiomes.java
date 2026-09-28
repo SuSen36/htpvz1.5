@@ -1,4 +1,4 @@
-package com.hungteen.pvz.common.register;
+package com.hungteen.pvz.common.world;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.common.block.BlockRegister;

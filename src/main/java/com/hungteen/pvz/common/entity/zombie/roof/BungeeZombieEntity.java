@@ -5,9 +5,11 @@ import com.hungteen.pvz.common.entity.AbstractPAZEntity;
 import com.hungteen.pvz.common.entity.ai.goal.target.PVZRandomTargetGoal;
 import com.hungteen.pvz.common.entity.bullet.TargetArrowEntity;
 import com.hungteen.pvz.common.entity.zombie.PVZZombieEntity;
+import com.hungteen.pvz.common.entity.zombie.base.AbstractEdgarZombotEntity;
 import com.hungteen.pvz.common.impl.zombie.RoofZombies;
 import com.hungteen.pvz.common.impl.zombie.ZombieType;
 import com.hungteen.pvz.common.item.ItemRegister;
+import com.hungteen.pvz.common.misc.DataSerializerRegister;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.common.misc.tag.PVZEntityTypeTags;
 import com.hungteen.pvz.utils.ConfigUtil;
@@ -33,10 +35,11 @@ public class BungeeZombieEntity extends PVZZombieEntity implements ICanPushBack 
 
 	private static final EntityDataAccessor<Integer> BUNGEE_STATE = SynchedEntityData.defineId(BungeeZombieEntity.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> BUNGEE_TYPE = SynchedEntityData.defineId(BungeeZombieEntity.class, EntityDataSerializers.INT);
-	private static final EntityDataAccessor<BlockPos> ORIGIN_POS = SynchedEntityData.defineId(BungeeZombieEntity.class, EntityDataSerializers.BLOCK_POS);
+	private static final EntityDataAccessor<Vec3> ORIGIN_POS = SynchedEntityData.defineId(BungeeZombieEntity.class, DataSerializerRegister.VEC3);
 	protected EntityType<?> entityType;
 	private BlockPos stealPos;
 	private LivingEntity stealTarget;
+	private boolean originLocked;
 	
 	public BungeeZombieEntity(EntityType<? extends PathfinderMob> type, Level worldIn) {
 		super(type, worldIn);
@@ -51,13 +54,13 @@ public class BungeeZombieEntity extends PVZZombieEntity implements ICanPushBack 
 		super.defineSynchedData();
 		this.entityData.define(BUNGEE_STATE, BungeeStates.WAIT.ordinal());
 		this.entityData.define(BUNGEE_TYPE, BungeeTypes.STEAL.ordinal());
-		this.entityData.define(ORIGIN_POS, BlockPos.ZERO);
+		this.entityData.define(ORIGIN_POS, Vec3.ZERO);
 	}
 
 	@Override
 	public void finalizeSpawn(CompoundTag tag) {
 		super.finalizeSpawn(tag);
-		this.setOriginPos(blockPosition());
+		this.setOriginPos(this.position());
 	}
 	
 	@Override
@@ -156,14 +159,15 @@ this.discard();
 	 */
 	protected void tickSteal() {
 		//not wait, but target is not suitable now, then back to wait.
-		if(this.getBungeeState() != BungeeStates.WAIT && ! this.isSuitableTarget(this.getStealTarget())) {
+		if(this.getBungeeState() != BungeeStates.WAIT && this.getBungeeState() != BungeeStates.UP && ! this.isSuitableTarget(this.getStealTarget())) {
 			this.setBungeeState(BungeeStates.BACK_WAIT); //chosen target was not fitable then die.
 			this.setStealTarget(null);
 		}
 		if(this.getBungeeState() == BungeeStates.WAIT) {
 			if(this.isSuitableTarget(this.getTarget())) {
-				if(this.getOriginPos().getY() - this.getTarget().getY() <= 15) {//not enough high, then move to 20 block higher place.
-					this.setOriginPos(this.getTarget().blockPosition().above(20));
+				//锚点由僵王每 tick 推送，此处再改会被立刻覆写，蹦极将在两个锚点间往返而永不下潜
+				if(! this.originLocked && this.getOriginPos().y - this.getTarget().getY() <= 15) {//not enough high, then move to 20 block higher place.
+					this.setOriginPos(this.getTarget().position().add(0, 20, 0));
 					this.setBungeeState(BungeeStates.BACK_WAIT);
 					return ;
 				}
@@ -174,7 +178,8 @@ this.discard();
 			}
 		} else if(this.getBungeeState() == BungeeStates.BACK_WAIT) {//move back to origin to wait next target.
 			this.moveBackToOrigin();
-			if(this.distanceToSqr(this.getOriginPos().getX(), this.getOriginPos().getY(), this.getOriginPos().getZ()) <= 2) {
+			final Vec3 anchor = this.getAnchorPos();
+			if(this.distanceToSqr(anchor.x, anchor.y, anchor.z) <= 2) {
 				this.setBungeeState(BungeeStates.WAIT);
 				this.setDeltaMovement(Vec3.ZERO);
 			}
@@ -200,8 +205,11 @@ this.discard();
 		} else if(this.getBungeeState() == BungeeStates.UP) {
 			this.setAttackTime(this.getAttackTime() - 1);
 			this.moveBackToOrigin();
-			this.getStealTarget().startRiding(this);
-			if(this.getAttackTime() < - 100) {
+			if(EntityUtil.isEntityValid(this.getStealTarget())) {
+				this.getStealTarget().startRiding(this);
+			}
+			final Vec3 anchor = this.getAnchorPos();
+			if(this.distanceToSqr(anchor.x, anchor.y, anchor.z) <= 2 || this.getAttackTime() < - 100) {
 				this.dealDamageAndRemove();
             }
 		}
@@ -325,11 +333,9 @@ this.discard();
 		this.setDeltaMovement(vec.multiply(speed, speed, speed));
 	}
 	
-	/**
-	 * move back to origin blockpos.
-	 */
 	private void moveBackToOrigin() {
-		Vec3 vec = new Vec3(this.getOriginPos().getX() - this.getX(), this.getOriginPos().getY() - this.getY(), this.getOriginPos().getZ() - this.getZ()).normalize();
+		final Vec3 anchor = this.getAnchorPos();
+		Vec3 vec = anchor.subtract(this.position()).normalize();
 		final double speed = 0.4D;
 		this.setDeltaMovement(vec.multiply(speed, speed, speed));
 	}
@@ -436,7 +442,7 @@ this.discard();
 		}
 		if(compound.contains("origin_pos")) {
 			CompoundTag nbt = compound.getCompound("origin_pos");
-			this.setOriginPos(new BlockPos(nbt.getInt("origin_pos_x"), nbt.getInt("origin_pos_y"), nbt.getInt("origin_pos_z")));
+			this.setOriginPos(new Vec3(nbt.getDouble("origin_pos_x"), nbt.getDouble("origin_pos_y"), nbt.getDouble("origin_pos_z")));
 		}
 	}
 	
@@ -460,9 +466,9 @@ this.discard();
 		}
 		{
 			CompoundTag nbt = new CompoundTag();
-			nbt.putInt("origin_pos_x", this.getOriginPos().getX());
-			nbt.putInt("origin_pos_y", this.getOriginPos().getY());
-			nbt.putInt("origin_pos_z", this.getOriginPos().getZ());
+			nbt.putDouble("origin_pos_x", this.getOriginPos().x);
+			nbt.putDouble("origin_pos_y", this.getOriginPos().y);
+			nbt.putDouble("origin_pos_z", this.getOriginPos().z);
 			compound.put("origin_pos", nbt);
 		}
 	}
@@ -483,12 +489,16 @@ this.discard();
 		return BungeeTypes.values()[this.entityData.get(BUNGEE_TYPE)];
 	}
 	
-	public BlockPos getOriginPos() {
+	public Vec3 getOriginPos() {
 		return this.entityData.get(ORIGIN_POS);
 	}
 	
-	public void setOriginPos(BlockPos pos) {
+	public void setOriginPos(Vec3 pos) {
 		this.entityData.set(ORIGIN_POS, pos);
+	}
+
+	public Vec3 getAnchorPos() {
+		return this.getOriginPos();
 	}
 	
 	public LivingEntity getStealTarget() {
@@ -497,6 +507,10 @@ this.discard();
 	
 	public void setStealTarget(LivingEntity target) {
 		this.stealTarget = target;
+	}
+
+	public void setOriginLocked(boolean locked) {
+		this.originLocked = locked;
 	}
 	
 	public enum BungeeStates {

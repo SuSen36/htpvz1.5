@@ -33,6 +33,10 @@ public class ClientChallengeBarManager {
 		BARS.remove(challengeId);
 	}
 
+	public static void clear() {
+		BARS.clear();
+	}
+
 	public static class BarData {
 
 		private final UUID barUuid;

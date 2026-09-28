@@ -1,6 +1,6 @@
 package com.hungteen.pvz.common.network.toclient;
 
-import com.hungteen.pvz.client.challenge.ClientConveyorBeltManager;
+import com.hungteen.pvz.client.capability.level.ConveyorBeltCapability;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
@@ -57,10 +57,13 @@ public class ConveyorBeltPacket {
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
-			if(this.remove) {
-				ClientConveyorBeltManager.remove();
-			} else {
-				ClientConveyorBeltManager.update(this.cards, this.entryTicks);
+			final ConveyorBeltCapability belt = ConveyorBeltCapability.getCurrent();
+			if(belt != null) {
+				if(this.remove) {
+					belt.clear();
+				} else {
+					belt.update(this.cards, this.entryTicks);
+				}
 			}
 		});
 		ctx.get().setPacketHandled(true);

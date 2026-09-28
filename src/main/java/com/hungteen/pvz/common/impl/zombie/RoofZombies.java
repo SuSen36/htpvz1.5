@@ -63,19 +63,19 @@ public final class RoofZombies extends ZombieType {
 			.commonSkill(List.of())
 	);
 	
-	public static final ZombieType EDGAR_090505 = new RoofZombies("edgar_090505", new ZombieFeatures()
+	public static final ZombieType ZOMBOT = new RoofZombies("zombot", new ZombieFeatures()
 		    .rank(RankTypes.MEGA).xp(600)
-			.entityType(() -> EntityRegister.EDGAR_090505.get())
-			.zombieModel(() -> () -> new EdgarRobotModel(EdgarRobotModel.createBodyLayer().bakeRoot())).scale(1.6F)
-			.loot(PVZLoot.EDGAR_090505)
+			.entityType(() -> EntityRegister.ZOMBOT.get())
+			.zombieModel(() -> () -> new ZombotModel(ZombotModel.createBodyLayer().bakeRoot())).scale(1.6F)
+			.loot(PVZLoot.ZOMBOT)
 			.commonSkill(List.of())
 	);
 
-	public static final ZombieType EDGAR_090517 = new RoofZombies("edgar_090517", new ZombieFeatures()
+	public static final ZombieType EDGAR_ZOMBOT = new RoofZombies("edgar_zombot", new ZombieFeatures()
 			.rank(RankTypes.MEGA).xp(1200)
-			.entityType(() -> EntityRegister.EDGAR_090517.get())
-			.zombieModel(() -> () -> new EdgarRobotModel(EdgarRobotModel.createBodyLayer().bakeRoot())).scale(2F)
-			.loot(PVZLoot.EDGAR_090517)
+			.entityType(() -> EntityRegister.EDGAR_ZOMBOT.get())
+			.zombieModel(() -> () -> new EdgarZombotModel(EdgarZombotModel.createBodyLayer().bakeRoot())).scale(1F)
+			.loot(PVZLoot.EDGAR_ZOMBOT)
 			.commonSkill(List.of())
 	);
 	

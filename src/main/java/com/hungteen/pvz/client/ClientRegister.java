@@ -83,6 +83,7 @@ import com.hungteen.pvz.client.render.entity.zombie.other.*;
 import com.hungteen.pvz.client.render.entity.zombie.pool.*;
 import com.hungteen.pvz.client.render.entity.zombie.roof.*;
 import com.hungteen.pvz.client.render.entity.zombie.zombotany.*;
+import com.hungteen.pvz.client.render.tileentity.*;
 import com.hungteen.pvz.common.block.BlockRegister;
 import com.hungteen.pvz.common.blockentity.TileEntityRegister;
 import com.hungteen.pvz.common.item.ItemRegister;
@@ -264,7 +265,7 @@ public class ClientRegister {
 		ev.registerEntityRenderer(GARGANTUAR.get(), ctx -> new GargantuarRender(ctx));
 		ev.registerEntityRenderer(IMP.get(), ctx -> new ImpRender(ctx));
 		ev.registerEntityRenderer(GIGA_GARGANTUAR.get(), ctx -> new GigaGargantuarRender(ctx));
-		ev.registerEntityRenderer(EDGAR_090505.get(), ctx -> new EdgarRobotRender(ctx));
+		ev.registerEntityRenderer(ZOMBOT.get(), ctx -> new ZombotRender(ctx));
 		ev.registerEntityRenderer(PEASHOOTER_ZOMBIE.get(), ctx -> new PeaShooterZombieRender(ctx));
 		ev.registerEntityRenderer(GATLINGPEA_ZOMBIE.get(), ctx -> new GatlingPeaZombieRender(ctx));
 		ev.registerEntityRenderer(SQUASH_ZOMBIE.get(), ctx -> new SquashZombieRender(ctx));
@@ -272,7 +273,7 @@ public class ClientRegister {
 		ev.registerEntityRenderer(WALLNUT_ZOMBIE.get(), ctx -> new WallNutZombieRender(ctx));
 		ev.registerEntityRenderer(TALLNUT_ZOMBIE.get(), ctx -> new TallNutZombieRender(ctx));
 		ev.registerEntityRenderer(GIGA_TOMB_STONE.get(), ctx -> new GigaTombStoneRender(ctx));
-		ev.registerEntityRenderer(EDGAR_090517.get(), ctx -> new EdgarRobotRender(ctx));
+		ev.registerEntityRenderer(EDGAR_ZOMBOT.get(), ctx -> new EdgarZombotRender<>(ctx));
 		ev.registerEntityRenderer(PEA_SHOOTER.get(), ctx -> new PeaShooterRender(ctx));
 		ev.registerEntityRenderer(SUN_FLOWER.get(), ctx -> new SunFlowerRender(ctx));
 		ev.registerEntityRenderer(CHERRY_BOMB.get(), ctx -> new CherryBombRender(ctx));
@@ -330,8 +331,8 @@ public class ClientRegister {
 		ev.registerEntityRenderer(BAMBOO_LORD.get(), ctx -> new BambooLordRender(ctx));
 		ev.registerEntityRenderer(ICEBERG_LETTUCE.get(), ctx -> new IcebergLettuceRender(ctx));
 		ev.registerEntityRenderer(BONK_CHOY.get(), ctx -> new BonkChoyRender(ctx));
-		ev.registerBlockEntityRenderer(TileEntityRegister.SUNFLOWER_TROPHY.get(), ctx -> new com.hungteen.pvz.client.render.tileentity.SunFlowerTrophyTER(ctx));
-		ev.registerBlockEntityRenderer(TileEntityRegister.ESSENCE_ALTAR.get(), ctx -> new com.hungteen.pvz.client.render.tileentity.EssenceAltarTER(ctx));
+		ev.registerBlockEntityRenderer(TileEntityRegister.SUNFLOWER_TROPHY.get(), ctx -> new SunFlowerTrophyTER(ctx));
+		ev.registerBlockEntityRenderer(TileEntityRegister.ESSENCE_ALTAR.get(), ctx -> new EssenceAltarTER(ctx));
 	}
 
 
@@ -377,6 +378,8 @@ public class ClientRegister {
 			CrazyDaveModel::createBodyLayer);
 		ev.registerLayerDefinition(PennyModel.LAYER,
 			PennyModel::createBodyLayer);
+		ev.registerLayerDefinition(DestroyCarModel.LAYER,
+			DestroyCarModel::createBodyLayer);
 		ev.registerLayerDefinition(AngelStarFruitModel.LAYER,
 			AngelStarFruitModel::createBodyLayer);
 		ev.registerLayerDefinition(GatlingPeaModel.LAYER,
@@ -559,8 +562,10 @@ public class ClientRegister {
 			BungeeZombieModel::createBodyLayer);
 		ev.registerLayerDefinition(CatapultZombieModel.LAYER,
 			CatapultZombieModel::createBodyLayer);
-		ev.registerLayerDefinition(EdgarRobotModel.LAYER,
-			EdgarRobotModel::createBodyLayer);
+		ev.registerLayerDefinition(ZombotModel.LAYER,
+			ZombotModel::createBodyLayer);
+		ev.registerLayerDefinition(EdgarZombotModel.LAYER,
+			EdgarZombotModel::createBodyLayer);
 		ev.registerLayerDefinition(GargantuarModel.LAYER,
 			GargantuarModel::createBodyLayer);
 		ev.registerLayerDefinition(ImpModel.LAYER,

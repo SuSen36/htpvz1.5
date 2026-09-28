@@ -23,11 +23,7 @@ public abstract class AbstractBossZombieEntity extends PVZZombieEntity {
 
 	protected final ServerBossEvent bossInfo = (ServerBossEvent) (new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS)).setDarkenScreen(true);
 
-	//addPlayer 在不可见时仍会记录玩家（getPlayers 供音效与击杀统计使用），只拦血条包的下发
-	public void setBossBarVisible(boolean visible) {
-		this.bossInfo.setVisible(visible);
-	}
-	protected int refreshCountCD = 30; 
+	protected int refreshCountCD = 30;
 	protected int spawnImmuneCD = 100;
 	protected float kickRange = 0;
 	protected int maxZombieSurround = 40;
@@ -84,7 +80,7 @@ public abstract class AbstractBossZombieEntity extends PVZZombieEntity {
 	
 	public void checkAndHeal(float percent) {
 		if(this.getTarget() == null) {
-			if(++ this.noTargetTick >= 40) {
+			if(++ this.noTargetTick >= 60) {
 				this.heal(1);
 			}
 		} else {

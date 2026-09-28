@@ -4,7 +4,9 @@
   ],
   "tags": [
     "overworld",
-    "day"
+    "day",
+    "bowling",
+    "conveyor"
   ],
   "bar_color": "green",
   "trade_price": 50,
@@ -142,6 +144,12 @@
       ]
     }
   ],
+  "seed_pool": [
+    {
+      "item": "pvz:wall_nut_enjoy_card",
+      "weight": 1
+    }
+  ],
   "messages": [],
   "rewards": {
     "items": [
@@ -154,6 +162,6 @@
     ]
   },
   "sounds": {
-    "bgm_sound": "pvz:grasswalk_complete"
+    "bgm_sound": "pvz:loonboon"
   }
 }

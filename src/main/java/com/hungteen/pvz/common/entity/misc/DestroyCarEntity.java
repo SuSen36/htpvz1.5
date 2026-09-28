@@ -5,15 +5,13 @@ import com.hungteen.pvz.common.misc.PVZEntityDamageSource;
 import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.MathUtil;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class DestroyCarEntity extends AbstractOwnerEntity {
 
-	protected final float height = 20;
+	protected final float height = 10;
 	
 	public DestroyCarEntity(EntityType<?> entityTypeIn, Level worldIn) {
 		super(entityTypeIn, worldIn);
@@ -51,6 +49,7 @@ this.discard();
     	double vxz = dxz / (t1 + t2);
     	double vy = g * t1;
     	this.setDeltaMovement(vxz * dx / dxz, vy + MathUtil.getRandomFloat(this.random) / 10, vxz * dz / dxz);
+    	this.setYRot((float) (Mth.atan2(dx, dz) * (180F / (float) Math.PI)));
     }
 	
 	private void tickCollision() {
@@ -61,11 +60,6 @@ this.discard();
 				}
 			});
 		}
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(2F, 2F);
 	}
 
 }

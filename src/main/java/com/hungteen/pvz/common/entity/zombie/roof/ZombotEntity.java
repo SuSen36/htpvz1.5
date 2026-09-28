@@ -2,7 +2,7 @@ package com.hungteen.pvz.common.entity.zombie.roof;
 
 import com.hungteen.pvz.common.entity.EntityRegister;
 import com.hungteen.pvz.common.entity.misc.drop.JewelEntity;
-import com.hungteen.pvz.common.entity.zombie.base.EdgarRobotEntity;
+import com.hungteen.pvz.common.entity.zombie.base.AbstractEdgarZombotEntity;
 import com.hungteen.pvz.common.impl.zombie.RoofZombies;
 import com.hungteen.pvz.common.impl.zombie.ZombieType;
 import com.hungteen.pvz.utils.EntityUtil;
@@ -20,11 +20,11 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
-public class Edgar090505Entity extends EdgarRobotEntity {
+public class ZombotEntity extends AbstractEdgarZombotEntity {
 
-    private static final EntityDataAccessor<BlockPos> ORIGIN_POS = SynchedEntityData.defineId(Edgar090505Entity.class, EntityDataSerializers.BLOCK_POS);
+    private static final EntityDataAccessor<BlockPos> ORIGIN_POS = SynchedEntityData.defineId(ZombotEntity.class, EntityDataSerializers.BLOCK_POS);
 
-    public Edgar090505Entity(EntityType<? extends PathfinderMob> type, Level worldIn) {
+    public ZombotEntity(EntityType<? extends PathfinderMob> type, Level worldIn) {
         super(type, worldIn);
         this.refreshCountCD = 10;
         this.maxZombieSurround = 40;
@@ -93,11 +93,6 @@ public class Edgar090505Entity extends EdgarRobotEntity {
     }
 
     @Override
-    public int getSpawnCount() {
-        return (this.bossInfo.getPlayers().size() + 1) / 2 + 1;
-    }
-
-    @Override
     public float getWalkSpeed() {
         return 0;
     }
@@ -146,7 +141,7 @@ public class Edgar090505Entity extends EdgarRobotEntity {
 
     @Override
     public ZombieType getZombieType() {
-        return RoofZombies.EDGAR_090505;
+        return RoofZombies.ZOMBOT;
     }
 
 }

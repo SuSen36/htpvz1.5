@@ -1,14 +1,14 @@
 {
-  "parent": "pvz:adventure/edgar_090505",
+  "parent": "pvz:adventure/zombot",
   "display": {
     "icon": {
       "item": "pvz:challenge_envelope"
     },
     "title": {
-      "translate": "advancement.pvz.edgar_090517"
+      "translate": "advancement.pvz.edgar_zombot"
     },
     "description": {
-      "translate": "advancement.pvz.edgar_090517.desc"
+      "translate": "advancement.pvz.edgar_zombot.desc"
     },
 	"frame":"challenge",
     "show_toast": true,

@@ -3,7 +3,7 @@ package com.hungteen.pvz.client.model.entity.zombie.roof;
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.interfaces.IBodyEntity;
 import com.hungteen.pvz.api.paz.IZombieModel;
-import com.hungteen.pvz.common.entity.zombie.base.EdgarRobotEntity;
+import com.hungteen.pvz.common.entity.zombie.base.AbstractEdgarZombotEntity;
 import com.hungteen.pvz.utils.AnimationUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,8 +20,8 @@ import net.minecraft.resources.ResourceLocation;
 // Made with Blockbench 3.7.5
 // Exported for Minecraft version 1.15
 // Paste this class into your mod and generate all required imports
-public class EdgarRobotModel<T extends EdgarRobotEntity> extends EntityModel<T> implements IZombieModel<T>{
-	public static final ModelLayerLocation LAYER = new ModelLayerLocation(new ResourceLocation(PVZMod.MOD_ID, "edgar_090517"), "main");
+public class ZombotModel<T extends AbstractEdgarZombotEntity> extends EntityModel<T> implements IZombieModel<T>{
+	public static final ModelLayerLocation LAYER = new ModelLayerLocation(new ResourceLocation(PVZMod.MOD_ID, "zombot"), "main");
 
 	private final ModelPart total;
 	private final ModelPart left_leg;
@@ -41,10 +41,7 @@ public class EdgarRobotModel<T extends EdgarRobotEntity> extends EntityModel<T> 
 	private final ModelPart left_arm;
 	private final ModelPart right_arm;
 
-
-
-
-public EdgarRobotModel(ModelPart root) {
+	public ZombotModel(ModelPart root) {
 		this.total = root.getChild("total");
 		this.left_leg = this.total.getChild("left_leg");
 		this.left_shoo = this.left_leg.getChild("left_shoo");
@@ -178,18 +175,14 @@ public EdgarRobotModel(ModelPart root) {
 
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
-		this.red_eyes.visible = (entity.getRobotState() == EdgarRobotEntity.EdgarStates.FLAME);
-		this.blue_eyes.visible = (entity.getRobotState() == EdgarRobotEntity.EdgarStates.ICE);
+		this.red_eyes.visible = (entity.getRobotState() == AbstractEdgarZombotEntity.EdgarStates.FLAME);
+		this.blue_eyes.visible = (entity.getRobotState() == AbstractEdgarZombotEntity.EdgarStates.ICE);
 		this.yellow_eyes.visible = (! this.red_eyes.visible && ! this.blue_eyes.visible);
-		if(entity.getRobotState() == EdgarRobotEntity.EdgarStates.FLAME || entity.getRobotState() == EdgarRobotEntity.EdgarStates.ICE) {
+		if(entity.getRobotState() == AbstractEdgarZombotEntity.EdgarStates.FLAME || entity.getRobotState() == AbstractEdgarZombotEntity.EdgarStates.ICE) {
 			this.mouse.xRot = AnimationUtil.getUp(entity.getAttackTime(), entity.getAnimShootCD(), 30);
 			this.right_arm.xRot = 0;
 			this.left_arm.xRot = 0;
-		} else if(entity.getRobotState() == EdgarRobotEntity.EdgarStates.CAR) {
-			this.right_arm.xRot = AnimationUtil.getUpDown(entity.getAttackTime(), entity.getAnimThrowCD(), - 60);
-			this.mouse.xRot = 0;
-			this.left_arm.xRot = 0;
-		} else if(entity.getRobotState() == EdgarRobotEntity.EdgarStates.STEAL) {
+		} else if(entity.getRobotState() == AbstractEdgarZombotEntity.EdgarStates.STEAL) {
 			this.left_arm.xRot = AnimationUtil.getUpDown(entity.getAttackTime(), entity.getAnimStealCD(), - 120);
 			this.right_arm.xRot = AnimationUtil.getUpDown(entity.getAttackTime(), entity.getAnimStealCD(), - 120);
 			this.mouse.xRot = 0;

@@ -15,6 +15,11 @@ public class TallNutEntity extends WallNutEntity{
 	}
 
 	@Override
+	public boolean canBowling() {
+		return false;
+	}
+
+	@Override
 	public float getSuperLife() {
 		return 800;
 	}

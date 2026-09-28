@@ -7,7 +7,7 @@ import com.hungteen.pvz.client.particle.ModelPartParticle;
 import com.hungteen.pvz.client.render.entity.PVZCreatureRender;
 import com.hungteen.pvz.client.render.layer.fullskin.*;
 import com.hungteen.pvz.common.entity.zombie.PVZZombieEntity;
-import com.hungteen.pvz.common.entity.zombie.base.EdgarRobotEntity;
+import com.hungteen.pvz.common.entity.zombie.base.AbstractEdgarZombotEntity;
 import com.hungteen.pvz.common.potion.EffectRegister;
 import com.hungteen.pvz.utils.ConfigUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -57,7 +57,7 @@ public abstract class PVZZombieRender <T extends PVZZombieEntity> extends PVZCre
 			}
 			if (zombie.renderBody && zombie.isDeadOrDying()) {
 				zombie.renderBody = false;
-				if (zombie instanceof EdgarRobotEntity) {//僵王六部位一次抛落
+				if (zombie instanceof AbstractEdgarZombotEntity) {//僵王六部位一次抛落
 					List.of(BodyType.HEAD, BodyType.BODY, BodyType.LEFT_HAND, BodyType.RIGHT_HAND, BodyType.LEFT_LEG, BodyType.RIGHT_LEG)
 							.forEach(type -> this.createBodyParticle(zombie, type, Optional.empty()));
 				} else {

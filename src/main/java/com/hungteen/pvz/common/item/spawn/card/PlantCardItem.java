@@ -521,7 +521,7 @@ public class PlantCardItem extends SummonCardItem {
 				plantEntity1.startRiding(plantEntity);
 			}
 		});
-		}
+	}
 
 	/**
 	 * check sun cost and summon pumpkin that wraps the plant (as a riding vehicle).
@@ -879,10 +879,11 @@ public class PlantCardItem extends SummonCardItem {
 	@Override
 	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
 		super.inventoryTick(stack, level, entity, slotId, isSelected);
-		if(! level.isClientSide && entity instanceof Player player) {
+		if(! level.isClientSide && entity instanceof ServerPlayer player) {
 			final UUID challengeUuid = getChallengeUuid(stack);
-			//挑战已移除或玩家不在其范围（含待移除阶段）时体验卡自然消失，对齐 htpvz2
-			if(challengeUuid != null && ! ChallengeManager.isPlayerInChallengeRange((ServerLevel) level, challengeUuid, player)) {
+			final Challenge challenge = ChallengeManager.getPlayerChallenge(player);
+			//存活期与卡包锁定一致：玩家须仍处于这张卡绑定的那场挑战中
+			if(challengeUuid != null && (challenge == null || ! challenge.getBarUuid().equals(challengeUuid))) {
 				stack.shrink(stack.getCount());
 			}
 		}

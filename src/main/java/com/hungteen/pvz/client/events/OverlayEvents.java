@@ -2,11 +2,13 @@ package com.hungteen.pvz.client.events;
 
 import com.hungteen.pvz.PVZConfig;
 import com.hungteen.pvz.PVZMod;
+import com.hungteen.pvz.client.challenge.ClientChallengeBarManager;
 import com.hungteen.pvz.client.events.handler.PVZOverlayHandler;
 import com.hungteen.pvz.common.entity.plant.explosion.CobCannonEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -59,6 +61,12 @@ public class OverlayEvents {
 
 	private static boolean canRender() {
 		return mc.player != null && ! mc.player.isSpectator();
+	}
+
+	/* 血条状态还不是能力、按挑战 id 存在客户端静态表里，只在真正离开世界时清一次；LevelEvent.Unload 会随切维度误触发 */
+	@SubscribeEvent
+	public static void onPlayerLogout(ClientPlayerNetworkEvent.LoggingOut ev) {
+		ClientChallengeBarManager.clear();
 	}
 	
 }

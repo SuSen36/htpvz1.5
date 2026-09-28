@@ -203,7 +203,7 @@ public class PVZEntityLootTables implements Consumer<BiConsumer<ResourceLocation
                         .add(LootItem.lootTableItem(ItemRegister.WARNING_SIGN.get()))
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.08F, 0.01F))
                 ));
-        t.accept(PVZLoot.EDGAR_090505, getLootTable()
+        t.accept(PVZLoot.ZOMBOT, getLootTable()
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(BlockRegister.SILVER_SUNFLOWER_TROPHY.get()))
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(1F, 0.01F))
@@ -214,7 +214,7 @@ public class PVZEntityLootTables implements Consumer<BiConsumer<ResourceLocation
                         .add(LootItem.lootTableItem(ItemRegister.TIME_SOURCE.get()))
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(0.6F, 0.01F))
                 ));
-        t.accept(PVZLoot.EDGAR_090517, getLootTable()
+        t.accept(PVZLoot.EDGAR_ZOMBOT, getLootTable()
                 .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(BlockRegister.GOLD_SUNFLOWER_TROPHY.get()))
                         .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(1F, 0.01F))
