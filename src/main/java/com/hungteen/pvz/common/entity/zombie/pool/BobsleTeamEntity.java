@@ -10,10 +10,8 @@ import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.ZombieUtil;
 import com.hungteen.pvz.utils.interfaces.IHasMultiPart;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -122,11 +120,6 @@ public class BobsleTeamEntity extends PVZZombieEntity implements IHasMultiPart {
                 EntityUtil.onEntityRandomPosSpawn(level, zombie, this.blockPosition(), 2);
 			}
 		}
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1.25f, 1.4f);
 	}
 	
 	@Override

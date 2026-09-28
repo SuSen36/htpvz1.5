@@ -76,11 +76,6 @@ public class CornEntity extends PultBulletEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1F, 1F);
-	}
-	
-	@Override
 	protected int getMaxLiveTick() {
 		return 300;
 	}

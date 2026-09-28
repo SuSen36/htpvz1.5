@@ -3,20 +3,13 @@ package com.hungteen.pvz.common.entity.bullet;
 import com.hungteen.pvz.common.misc.PVZEntityDamageSource;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class BallEntity extends PultBulletEntity {
 
 	public BallEntity(EntityType<?> type, Level worldIn) {
 		super(type, worldIn);
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.4F, 0.4F);
 	}
 
 	@Override

@@ -8,10 +8,8 @@ import com.hungteen.pvz.common.impl.SkillTypes;
 import com.hungteen.pvz.common.impl.plant.PVZPlants;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.utils.EntityUtil;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class  GloomShroomEntity extends PlantShooterEntity {
@@ -66,11 +64,6 @@ public class  GloomShroomEntity extends PlantShooterEntity {
 	public float getShootRange() {
 		return 4;
 	}
-    
-    @Override
-    public EntityDimensions getDimensions(Pose poseIn) {
-    	return EntityDimensions.scalable(0.9F, 0.8F);
-    }
     
     @Override
 	public IPlantType getPlantType() {

@@ -100,12 +100,7 @@ this.discard();
 	public int getKnockback() {
 		return this.knockback;
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.25f, 0.25f);
-	}
-	
+
 	@Override
 	protected float getGravityVelocity() {
 		return 0.002f;

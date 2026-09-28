@@ -7,10 +7,8 @@ import com.hungteen.pvz.common.entity.bullet.PultBulletEntity;
 import com.hungteen.pvz.common.entity.plant.base.PlantPultEntity;
 import com.hungteen.pvz.common.impl.SkillTypes;
 import com.hungteen.pvz.common.impl.plant.PVZPlants;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class MelonPultEntity extends PlantPultEntity {
@@ -37,11 +35,6 @@ public class MelonPultEntity extends PlantPultEntity {
 	@Override
 	public float getSuperDamage() {
 		return this.getAttackDamage() + 15;
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.9F, 1F);
 	}
 	
 	@Override

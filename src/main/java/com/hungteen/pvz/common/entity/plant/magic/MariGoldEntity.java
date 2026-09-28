@@ -7,10 +7,8 @@ import com.hungteen.pvz.common.entity.misc.drop.CoinEntity.CoinType;
 import com.hungteen.pvz.common.entity.plant.base.PlantProducerEntity;
 import com.hungteen.pvz.common.impl.plant.PVZPlants;
 import com.hungteen.pvz.utils.EntityUtil;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class MariGoldEntity extends PlantProducerEntity {
@@ -70,11 +68,6 @@ public class MariGoldEntity extends PlantProducerEntity {
 		return 1200;
 	}
 	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8f, 1.6f);
-	}
-
 	@Override
 	public IPlantType getPlantType() {
 		return PVZPlants.MARIGOLD;

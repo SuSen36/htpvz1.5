@@ -193,14 +193,9 @@ this.discard();
 		return this.getThornType() == ThornTypes.AUTO ? 500 : this.isInControl() ? 250 : 150;
 	}
 
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.2f, 0.2f);
-	}
-
 	/**
-	 * Updates the entity motion clientside, called by packets from the server
-	 */
+     * Updates the entity motion clientside, called by packets from the server
+     */
 	@OnlyIn(Dist.CLIENT)
 	public void lerpMotion(double x, double y, double z) {
 		this.setDeltaMovement(x, y, z);

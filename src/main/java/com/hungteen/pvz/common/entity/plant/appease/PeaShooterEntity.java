@@ -7,10 +7,8 @@ import com.hungteen.pvz.common.entity.plant.base.PlantShooterEntity;
 import com.hungteen.pvz.common.impl.SkillTypes;
 import com.hungteen.pvz.common.impl.plant.PVZPlants;
 import com.hungteen.pvz.utils.MathUtil;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class PeaShooterEntity extends PlantShooterEntity{
@@ -68,11 +66,6 @@ public class PeaShooterEntity extends PlantShooterEntity{
 	@Override
 	public int getSuperTimeLength() {
 		return 100;
-	}
-
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.7F, 1.3F);
 	}
 
 	@Override

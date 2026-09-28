@@ -9,10 +9,8 @@ import com.hungteen.pvz.common.misc.PVZEntityDamageSource;
 import com.hungteen.pvz.common.potion.EffectRegister;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class IceCabbageEntity extends PultBulletEntity {
@@ -44,11 +42,6 @@ public class IceCabbageEntity extends PultBulletEntity {
 		if(target.canFreeze() && (! (target instanceof IPAZEntity) || ((IPAZEntity) target).canBeCold()) && target.getTicksFrozen() < CHILL_FROZEN_TICK) {
 			target.setTicksFrozen(CHILL_FROZEN_TICK);
 		}
-	}
-
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.5F, 0.5F);
 	}
 
 }

@@ -30,7 +30,6 @@ import com.hungteen.pvz.utils.ConfigUtil;
 import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.PlayerUtil;
 import com.hungteen.pvz.utils.enums.Resources;
-import com.hungteen.pvz.utils.others.WeightList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -282,6 +281,13 @@ public class PlantCardItem extends SummonCardItem {
 			imitater.setDirection(player.getDirection().getOpposite());
 		}
 		plantEntity.onSpawnedByPlayer(player, cardItem.getBasisSunCost(plantStack));
+		UUID challengeUuid = getChallengeUuid(plantStack);
+		if(challengeUuid == null) {
+			challengeUuid = getChallengeUuid(heldStack);
+		}
+		if(challengeUuid != null) {
+			plantEntity.setChallengeUuid(challengeUuid);
+		}
 		enchantPlantEntityByCard(plantEntity, plantStack);
 		/* fire resource event */
 		final int sunCost = cardItem.getCardSunCost(player, plantStack);
@@ -301,30 +307,6 @@ public class PlantCardItem extends SummonCardItem {
 		if(! costCard.isEnjoyCard && PlayerUtil.isPAZLocked(player, costCard.plantType) && ConfigUtil.needUnlockToPlant() && ! player.isCreative()) {
 			plantEntity.discard();
 			return PlacementHints.LOCKED.getTextByArg(ChatFormatting.RED, costCard.plantType.getRequiredLevel());
-		}
-		/* challenge bound check：挑战绑定体验卡只能在其对应挑战范围内种植 */
-		final UUID challengeUuid = getChallengeUuid(heldStack);
-		if(challengeUuid != null && ! ChallengeManager.isPlayerInChallengeRange(serverLevel, challengeUuid, player)) {
-			plantEntity.discard();
-			return PlacementHints.CHALLENGE_ONLY.getTextByArg(ChatFormatting.RED, 0);
-		}
-		/* level seed pool：关卡配置了种子池时，只允许种植池内植物 */
-		final Challenge playerChallenge = player instanceof ServerPlayer serverPlayer ? ChallengeManager.getPlayerChallenge(serverPlayer) : null;
-		if(playerChallenge != null) {
-			final WeightList<ItemStack> levelSeedPool = playerChallenge.getRaidComponent().getSeedPool();
-			if(levelSeedPool != null) {
-				boolean allowed = false;
-				for(ItemStack poolEntry : levelSeedPool.getItemList()) {
-					if(poolEntry.getItem() == heldStack.getItem()) {
-						allowed = true;
-						break;
-					}
-				}
-				if(! allowed) {
-					plantEntity.discard();
-					return PlacementHints.SEED_POOL_ONLY.getTextByArg(ChatFormatting.RED, 0);
-				}
-			}
 		}
 		/* check sun */
 		if(resourceEvent.cost > PlayerUtil.getResource(player, Resources.SUN_NUM) && ! player.isCreative()) {
@@ -378,41 +360,68 @@ public class PlantCardItem extends SummonCardItem {
 	 */
 	public static boolean checkSunAndSummonPlant(Player player, ItemStack heldStack, ItemStack plantStack, PlantCardItem cardItem, BlockPos pos, Consumer<PVZPlantEntity> consumer) {
 		final IPlantType plantType = cardItem.plantType;
-			/* handle imitater card */
-		if(heldStack.getItem() instanceof ImitaterCardItem){
-			//*0.6.4 separately checkSunAndCD to fix imitator cd calculation bug.
-			if (checkSunAndCD(player, (ImitaterCardItem) heldStack.getItem(), plantStack, false, p -> true)) {
-				return ImitaterCardItem.summonImitater(player, heldStack, plantStack, cardItem, pos, i -> consumer.accept(i));
-			}
-		} else {
-			if(checkSunAndCD(player, cardItem, plantStack, false, p -> true)){
-				/* other plant card */
-				if(! handlePlantEntity(player, plantType, plantStack, pos, plantEntity -> {
-	//				/* update maxLevel and its owner */
-					plantEntity.onSpawnedByPlayer(player, cardItem.getBasisSunCost(plantStack));
-					/* other operations */
-					consumer.accept(plantEntity);
-					/* enchantment effects */
-					enchantPlantEntityByCard(plantEntity, plantStack);
-				})) {
-					return false;
-				}
-				/* handle cd and misc */
-				PlantCardItem.onUsePlantCard(player, heldStack, plantStack, cardItem);
-				return true;
-			}
+		final boolean isImitater = heldStack.getItem() instanceof ImitaterCardItem;
+		final int sunCost = checkSunAndCD(player, isImitater ? (ImitaterCardItem) heldStack.getItem() : cardItem, plantStack, false, p -> true);
+		if(sunCost < 0) {
+			return false;
 		}
-		return false;
+		final PVZPlantEntity plantEntity = createPlantEntity(player, isImitater ? PVZPlants.IMITATER : plantType, plantStack, pos);
+		if(plantEntity == null) {
+			return false;
+		}
+		final UUID heldChallengeUuid = getChallengeUuid(heldStack);
+		if(heldChallengeUuid != null && plantEntity.getChallengeUuid() == null) {
+			plantEntity.setChallengeUuid(heldChallengeUuid);
+		}
+		/* the condition event must run before the sun is consumed, so a rejected planting costs nothing */
+		final PlantResourceEvent.CheckPlantConditionEvent resourceEvent = new PlantResourceEvent.CheckPlantConditionEvent(
+				player, heldStack, plantEntity, Resources.SUN_NUM, sunCost, getPlantCardCD(player, plantStack, cardItem));
+		final PlantConditionMatchingEvent preEvent = new PlantConditionMatchingEvent(
+				plantEntity, resourceEvent, null, true, PlantConditionMatchingEvent.Phase.PRE);
+		MinecraftForge.EVENT_BUS.post(preEvent);
+		if(preEvent.isCanceled()) {
+			plantEntity.discard();
+			player.displayClientMessage(preEvent.result != null ? preEvent.result : PlacementHints.GROUND.getTextByArg(ChatFormatting.RED, 0), true);
+			PlayerUtil.playClientSound(player, SoundRegister.NO.get());
+			return false;
+		}
+		consumeSun(player, sunCost);
+		if(isImitater) {
+			return ImitaterCardItem.summonImitater(player, heldStack, plantStack, cardItem, pos, (ImitaterEntity) plantEntity, i -> consumer.accept(i));
+		}
+		/* other plant card */
+		if(! joinPlantEntity(player, plantType, pos, plantEntity, plantEntity1 -> {
+//				/* update maxLevel and its owner */
+			plantEntity1.onSpawnedByPlayer(player, cardItem.getBasisSunCost(plantStack));
+			/* other operations */
+			consumer.accept(plantEntity1);
+			/* enchantment effects */
+			enchantPlantEntityByCard(plantEntity1, plantStack);
+		})) {
+			return false;
+		}
+		/* handle cd and misc */
+		PlantCardItem.onUsePlantCard(player, heldStack, plantStack, cardItem);
+		return true;
 	}
 	
 	/**
-	 * {@link #checkSunAndSummonPlant(Player, ItemStack, ItemStack, PlantCardItem, BlockPos, Consumer)}
-	 * {@link ImitaterCardItem#summonImitater(Player, ItemStack, ItemStack, PlantCardItem, BlockPos, Consumer)}
+	 * {@link ImitaterEntity#imitate(IPlantType)}
 	 */
 	public static boolean handlePlantEntity(Player player, IPlantType plantType, ItemStack plantStack, BlockPos pos, Consumer<PVZPlantEntity> consumer) {
+		final PVZPlantEntity plantEntity = createPlantEntity(player, plantType, plantStack, pos);
+		return plantEntity != null && joinPlantEntity(player, plantType, pos, plantEntity, consumer);
+	}
+
+	/**
+	 * create the plant entity without adding it to the world, so condition checks can run before it joins.
+	 * @return null when the plant type has no valid entity.
+	 */
+	@Nullable
+	private static PVZPlantEntity createPlantEntity(Player player, IPlantType plantType, ItemStack plantStack, BlockPos pos) {
 		if(plantType.getEntityType().isEmpty()) {
 	        PVZMod.LOGGER.error("Plant Card : Summon wrong plant entity !");
-		    return false;
+		    return null;
 	    }
 	    final ServerLevel serverLevel = (ServerLevel) player.level;
 	    final Mob spawnedMob = plantType.getEntityType().get().create(serverLevel, plantStack.getTag(),
@@ -423,8 +432,17 @@ public class PlantCardItem extends SummonCardItem {
 			if(spawnedMob != null) {
 				spawnedMob.discard();
 			}
-			return false;
+			return null;
     	}
+    	final UUID challengeUuid = getChallengeUuid(plantStack);
+    	if(challengeUuid != null) {
+    		plantEntity.setChallengeUuid(challengeUuid);
+    	}
+		return plantEntity;
+	}
+
+	public static boolean joinPlantEntity(Player player, IPlantType plantType, BlockPos pos, PVZPlantEntity plantEntity, Consumer<PVZPlantEntity> consumer) {
+		final ServerLevel serverLevel = (ServerLevel) player.level;
     	if(ForgeEventFactory.doSpecialSpawn(plantEntity, serverLevel, pos.getX(), pos.getY(), pos.getZ(), null, MobSpawnType.SPAWN_EGG)) {
     		return false;
     	}
@@ -450,14 +468,17 @@ public class PlantCardItem extends SummonCardItem {
 		final BlockState state = PlantCardItem.getBlockState(player, plantType);
 		if(heldStack.getItem() instanceof ImitaterCardItem) {
 			//*0.6.4 separately checkSunAndCD to fix imitator cd calculation bug.
-			if(checkSunAndCD(player, (ImitaterCardItem) heldStack.getItem(), plantStack, true, p -> {
+			final int sunCost = checkSunAndCD(player, (ImitaterCardItem) heldStack.getItem(), plantStack, true, p -> {
 				if(state == null) {
 					PVZMod.LOGGER.error("Plant Card : No such plant block !");
 					return false;
 				}
 				return true;
-			})) {
-				if(! ImitaterCardItem.summonImitater(player, heldStack, plantStack, cardItem, pos, (imitater) -> {})){
+			});
+			if(sunCost >= 0) {
+				consumeSun(player, sunCost);
+				final PVZPlantEntity imitaterEntity = createPlantEntity(player, PVZPlants.IMITATER, plantStack, pos);
+				if(imitaterEntity == null || ! ImitaterCardItem.summonImitater(player, heldStack, plantStack, cardItem, pos, (ImitaterEntity) imitaterEntity, (imitater) -> {})){
 					return false;
 				}
 				if (player instanceof ServerPlayer) {
@@ -468,13 +489,15 @@ public class PlantCardItem extends SummonCardItem {
 				return true;
 			}
 		} else {
-			if(checkSunAndCD(player, cardItem, plantStack, true, p -> {
+			final int sunCost = checkSunAndCD(player, cardItem, plantStack, true, p -> {
 				if(state == null) {
 					PVZMod.LOGGER.error("Plant Card : No such plant block !");
 					return false;
 				}
 				return true;
-			})) {
+			});
+			if(sunCost >= 0) {
+				consumeSun(player, sunCost);
 				handlePlantBlock(player.level, plantType, state, pos);
 				if (player instanceof ServerPlayer) {
 					CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, pos, heldStack);
@@ -577,10 +600,12 @@ public class PlantCardItem extends SummonCardItem {
 		if(! plantType.equals(plantEntity.getPlantType())) {
 			return false;
 		}
-		if(checkSunAndCD(player, cardItem, plantStack, true, p -> true)){
+		final int sunCost = checkSunAndCD(player, cardItem, plantStack, true, p -> true);
+		if(sunCost >= 0){
+			consumeSun(player, sunCost);
 			onUsePlantCard(player, heldStack, plantStack, cardItem);
 			plantEntity.onHealBy(plantType, percent);
-				return true;
+			return true;
 		}
 		return false;
 	}
@@ -645,18 +670,19 @@ public class PlantCardItem extends SummonCardItem {
     }
 	
 	/**
-	 * check card cd and sun cost, and other predicates, finally consume sun.
+	 * check card cd and sun cost, and other predicates.
+	 * @return the sun cost to consume, or -1 when any check fails.
 	 */
-	private static boolean checkSunAndCD(Player player, PlantCardItem cardItem, ItemStack stack, boolean ignore, Predicate<Player> pre) {
+	private static int checkSunAndCD(Player player, PlantCardItem cardItem, ItemStack stack, boolean ignore, Predicate<Player> pre) {
 		/* check cool down */
 		if(player.getCooldowns().isOnCooldown(cardItem)) {
 			cardItem.notifyPlayerAndCD(player, stack, PlacementHints.ON_COOL_DOWN, stack.getHoverName());
-			return false;
+			return -1;
 		}
 		/* check lock */
 		if(! cardItem.isEnjoyCard && (PlayerUtil.isPAZLocked(player, cardItem.plantType) && ConfigUtil.needUnlockToPlant() && !player.isCreative())) {
 			cardItem.notifyPlayerAndCD(player, stack, PlacementHints.LOCKED, cardItem.plantType.getRequiredLevel());
-			return false;
+			return -1;
 		}
 		/* whether consider surrounding plants number */
 		final int sunCost = ignore ? cardItem.getBasisSunCost(stack) : cardItem.getCardSunCost(player, stack);
@@ -668,15 +694,18 @@ public class PlantCardItem extends SummonCardItem {
 			else {
 				cardItem.notifyPlayerAndCD(player, stack, PlacementHints.MULTIPLE_SUN, sunCost);
 			}
-			return false;
+			return -1;
 		}
 		if(pre.test(player)) {
-			if (! player.isCreative()){
-				PlayerUtil.addResource(player, Resources.SUN_NUM, - sunCost);
-			}
-			return true;
+			return sunCost;
 		}
-		return false;
+		return -1;
+	}
+	
+	private static void consumeSun(Player player, int sunCost) {
+		if (! player.isCreative()){
+			PlayerUtil.addResource(player, Resources.SUN_NUM, - sunCost);
+		}
 	}
 	
 	/**

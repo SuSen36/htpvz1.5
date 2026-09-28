@@ -97,11 +97,6 @@ public class HypnoShroomEntity extends PVZPlantEntity implements ICanAttract {
     }
 
     @Override
-    public EntityDimensions getDimensions(Pose poseIn) {
-        return EntityDimensions.scalable(0.7f, 1.9f);
-    }
-
-    @Override
     public int getSuperTimeLength() {
         return 2400;
     }

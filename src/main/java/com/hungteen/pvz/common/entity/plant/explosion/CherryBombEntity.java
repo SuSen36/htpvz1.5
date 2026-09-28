@@ -63,11 +63,6 @@ public class CherryBombEntity extends PlantBomberEntity{
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.9f, 1f, false);
-	}
-	
-	@Override
 	public int getReadyTime() {
 		return 30;
 	}

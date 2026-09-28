@@ -13,10 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -82,11 +80,6 @@ public class TorchWoodEntity extends PVZPlantEntity {
 		return this.getSkillValue(SkillTypes.WOOD_MORE_LIFE);
 	}
 
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.95f, 1.5f, false);
-	}
-	
 	@Override
 	public int getSuperTimeLength() {
 		/* 非零时长才能被 canStartSuperMode 放行 */

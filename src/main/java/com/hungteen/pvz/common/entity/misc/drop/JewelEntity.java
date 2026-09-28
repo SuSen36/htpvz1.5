@@ -7,9 +7,7 @@ import com.hungteen.pvz.utils.PlayerUtil;
 import com.hungteen.pvz.utils.enums.Resources;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -35,12 +33,7 @@ public class JewelEntity extends DropEntity{
 			PlayerUtil.playClientSound(player, SoundRegister.JEWEL_PICK.get());
 		}
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.9f, 0.9f);
-	}
-	
+
 	@Override
 	protected int getMaxLiveTick() {
 		return PVZConfig.COMMON_CONFIG.EntitySettings.EntityLiveTick.JewelLiveTick.get();

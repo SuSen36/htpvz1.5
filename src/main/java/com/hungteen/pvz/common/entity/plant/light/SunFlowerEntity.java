@@ -9,10 +9,8 @@ import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.enums.PAZAlmanacs;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -63,11 +61,6 @@ public class SunFlowerEntity extends PlantProducerEntity{
 			time = time * 5 / 4;
 		}
 		return time;
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8f, 1.3f);
 	}
 	
 	@Override

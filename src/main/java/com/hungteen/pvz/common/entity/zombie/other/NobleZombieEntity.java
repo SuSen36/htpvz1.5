@@ -243,11 +243,6 @@ public class NobleZombieEntity extends AbstractBossZombieEntity {
 		return 1000;
 	}
 
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8f, 1.9f);
-	}
-
 	protected int getTpCD() {
 		final float percent = this.bossInfo.getProgress();
 		if (percent < 1f / 3) {

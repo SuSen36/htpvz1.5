@@ -9,10 +9,8 @@ import com.hungteen.pvz.common.impl.plant.PVZPlants;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.utils.EntityUtil;
 import net.minecraft.commands.arguments.EntityAnchorArgument.Anchor;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class StarFruitEntity extends PlantShooterEntity {
@@ -67,11 +65,6 @@ public class StarFruitEntity extends PlantShooterEntity {
 	@Override
 	public float getAttackDamage() {
 		return this.getSkillValue(SkillTypes.MORE_STAR_DAMAGE);
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.9F, 0.5F);
 	}
 	
 	@Override

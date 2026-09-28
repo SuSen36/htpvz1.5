@@ -14,10 +14,8 @@ import com.hungteen.pvz.utils.PlayerUtil;
 import com.hungteen.pvz.utils.enums.PAZAlmanacs;
 import com.hungteen.pvz.utils.enums.Resources;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -116,11 +114,6 @@ public class GoldMagnetEntity extends PVZPlantEntity {
 
 	protected boolean checkCanWorkNow() {
 		return this.getOwnerPlayer().isPresent();
-	}
-
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.5f, 1.3f);
 	}
 
 	@Override

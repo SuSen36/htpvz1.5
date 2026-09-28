@@ -21,10 +21,12 @@ public class FireCrackerEntity extends PVZItemBulletEntity{
 	
 	public FireCrackerEntity(EntityType<?> type, Level worldIn) {
 		super(type, worldIn);
+		this.setNoGravity(false);
 	}
 	
 	public FireCrackerEntity(Level worldIn, LivingEntity owner) {
 		super(EntityRegister.FIRE_CRACKER.get(), worldIn, owner);
+		this.setNoGravity(false);
 	}
 	
 	@Override
@@ -58,10 +60,10 @@ public class FireCrackerEntity extends PVZItemBulletEntity{
 		}
 		this.level.broadcastEntityEvent(this, (byte) 3);
 		if (flag) {
-this.discard();
+			this.discard();
 		} else if(! this.checkLive(result)) {
 			this.dealDamage(null);
-this.discard();
+			this.discard();
 		}
 	}
 	
@@ -102,16 +104,6 @@ this.discard();
 	@Override
 	public ItemStack getItem() {
 		return new ItemStack(ItemRegister.FIRE_CRACKER.get());
-	}
-	
-	@Override
-	public boolean isNoGravity() {
-		return true;
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.5F, 0.5F);
 	}
 
 }

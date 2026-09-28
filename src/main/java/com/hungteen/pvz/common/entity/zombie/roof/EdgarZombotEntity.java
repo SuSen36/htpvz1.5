@@ -16,13 +16,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -89,10 +87,6 @@ public class EdgarZombotEntity extends ZombotEntity {
                 percent > 3F / 5 ? 2 :
                         percent > 2F / 5 ? 3 :
                                 percent > 1F / 5 ? 4 : 5;
-    }
-
-    public EntityDimensions getDimensions(Pose poseIn) {
-        return EntityDimensions.scalable(2F, 9F);
     }
 
     @Override

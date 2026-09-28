@@ -66,12 +66,7 @@ this.discard();
 	private void dealSporeDamage(Entity target) {
 		target.hurt(PVZEntityDamageSource.spore(this, this.getThrower()), this.attackDamage);
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.25f, 0.25f);
-	}
-	
+
 	@Override
 	protected float getGravityVelocity() {
 		return 0.0012f;

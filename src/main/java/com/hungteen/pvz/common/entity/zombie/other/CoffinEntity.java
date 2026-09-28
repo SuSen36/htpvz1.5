@@ -101,11 +101,6 @@ public class CoffinEntity extends AbstractBossZombieEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(2f, 2f);
-	}
-
-	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
 		super.readAdditionalSaveData(compound);
 		if(compound.contains("guard_state")) {

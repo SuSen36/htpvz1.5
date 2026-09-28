@@ -150,11 +150,6 @@ this.discard();
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.9f, 1.5f);
-	}
-	
-	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
 		super.readAdditionalSaveData(compound);
 		if(compound.contains("extra_chance")) {

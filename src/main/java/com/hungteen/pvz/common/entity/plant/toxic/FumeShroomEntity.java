@@ -8,10 +8,8 @@ import com.hungteen.pvz.common.impl.SkillTypes;
 import com.hungteen.pvz.common.impl.plant.PVZPlants;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class FumeShroomEntity extends PlantShooterEntity {
@@ -49,11 +47,6 @@ public class FumeShroomEntity extends PlantShooterEntity {
 	@Override
 	public int getSuperTimeLength() {
 		return 60;
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8f, 1.25f);
 	}
 	
     @Override

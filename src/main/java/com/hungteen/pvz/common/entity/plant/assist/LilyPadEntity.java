@@ -88,11 +88,6 @@ public class LilyPadEntity extends PVZPlantEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.875F, 0.2F);
-	}
-
-	@Override
 	public boolean canBeCollidedWith() {
 		return true;
 	}

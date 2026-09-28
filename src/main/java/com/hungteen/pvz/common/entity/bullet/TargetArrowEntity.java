@@ -6,10 +6,8 @@ import com.hungteen.pvz.common.entity.zombie.roof.BungeeZombieEntity.BungeeTypes
 import com.hungteen.pvz.common.item.ItemRegister;
 import com.hungteen.pvz.utils.EntityUtil;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -69,11 +67,6 @@ this.discard();
 		Vec3 speed = target.position().subtract(this.position()).normalize();
 		double multi = 1.3D;
 		this.setDeltaMovement(speed.multiply(multi, multi, multi));
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.5F, 0.5F);
 	}
 
 	@Override

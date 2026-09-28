@@ -83,11 +83,6 @@ this.discard();
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.6f, 1f, false);
-	}
-	
-	@Override
 	public double getPassengersRidingOffset() {
 		return 0;
 	}

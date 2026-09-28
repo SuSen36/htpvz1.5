@@ -67,11 +67,6 @@ public class GarlicEntity extends PlantDefenderEntity {
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8F, 1.2F);
-	}
-	
-	@Override
 	public IPlantType getPlantType() {
 		return PVZPlants.GARLIC;
 	}

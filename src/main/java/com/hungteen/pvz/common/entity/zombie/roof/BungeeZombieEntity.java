@@ -402,11 +402,6 @@ this.discard();
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1.2F, 2F);
-	}
-
-	@Override
     public ZombieType getZombieType() {
 	    return RoofZombies.BUNGEE_ZOMBIE;
     }

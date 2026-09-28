@@ -106,11 +106,6 @@ public class BloverEntity extends PVZPlantEntity {
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.5F, 1.5F);
-	}
-
-	@Override
 	public IPlantType getPlantType() {
 		return PVZPlants.BLOVER;
 	}

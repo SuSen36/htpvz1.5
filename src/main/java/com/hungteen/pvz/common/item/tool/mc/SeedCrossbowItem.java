@@ -186,19 +186,16 @@ public class SeedCrossbowItem extends CrossbowItem {
             return false;
         } else {
             boolean isArrow = instaBuild && bullet.getItem() instanceof ArrowItem;
-            boolean isSeed = bullet.getItem() instanceof PlantCardItem;
             ItemStack itemstack;
-            if (! isArrow && ! instaBuild && ! p_40866_) {
-                if (! isSeed) {
-                    itemstack = bullet.split(1);
-                    if (bullet.isEmpty() && shooter instanceof Player) {
-                        ((Player)shooter).getInventory().removeItem(bullet);
-                    }
-                } else {
-                    itemstack = bullet.copy();
-                }
-            } else {
+            if (isArrow || instaBuild || p_40866_) {
                 itemstack = bullet.copy();
+            } else if (bullet.getItem() instanceof PlantCardItem cardItem && ! cardItem.isEnjoyCard) {
+                itemstack = bullet.copy();
+            } else {
+                itemstack = bullet.split(1);
+                if (bullet.isEmpty() && shooter instanceof Player) {
+                    ((Player)shooter).getInventory().removeItem(bullet);
+                }
             }
 
             addChargedProjectile(crossBow, itemstack);

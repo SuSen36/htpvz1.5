@@ -144,11 +144,6 @@ public class DolphinRiderEntity extends PVZZombieEntity{
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.7f, 1.6f);
-	}
-
-	@Override
 	public float getSwimSpeed() {
 		return 2.75F;
 	}

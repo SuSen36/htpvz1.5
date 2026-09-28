@@ -31,11 +31,6 @@ public class PumpkinEntity extends PlantDefenderEntity{
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1.0F, 0.5F);
-	}
-
-	@Override
 	public boolean canHoldPlant() {
 		return true;
 	}

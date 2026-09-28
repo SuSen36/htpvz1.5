@@ -141,11 +141,6 @@ public class ImitaterEntity extends PlantBomberEntity {
 		return 30;
 	}
 	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.7F, 1.25F);
-	}
-
 	public void setImitateCard(ItemStack stack) {
 		this.entityData.set(IMITATE_CARD, stack);
 	}

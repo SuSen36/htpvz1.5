@@ -20,6 +20,7 @@ public class PlantUtil {
         p2.setSkills(p1.getSkills());
         p2.setCharmed(p1.isCharmed());
         p2.setOwnerUUID(p1.getOwnerUUID().orElse(null));
+        p2.setChallengeUuid(p1.getChallengeUuid());
     }
 
 }

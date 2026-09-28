@@ -76,11 +76,6 @@ public class UmbrellaLeafEntity extends PVZPlantEntity{
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.7F, 1.2F);
-	}
-	
-	@Override
 	public int getSuperTimeLength() {
 		return 0;
 	}

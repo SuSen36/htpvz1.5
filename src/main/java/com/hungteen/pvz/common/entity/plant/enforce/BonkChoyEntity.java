@@ -87,11 +87,6 @@ public class BonkChoyEntity extends PVZPlantEntity {
 	
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.6F, 0.9F);
-	}
-	
-	@Override
 	public IPlantType getPlantType() {
 		return OtherPlants.BONK_CHOY;
 	}

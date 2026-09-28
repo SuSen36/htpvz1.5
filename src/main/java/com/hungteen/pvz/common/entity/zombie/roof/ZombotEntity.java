@@ -13,10 +13,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
@@ -86,10 +84,6 @@ public class ZombotEntity extends AbstractEdgarZombotEntity {
             JewelEntity jewel = EntityRegister.JEWEL.get().create(level);
             EntityUtil.onEntityRandomPosSpawn(level, jewel, blockPosition().above(5), 4);
         }
-    }
-
-    public EntityDimensions getDimensions(Pose poseIn) {
-        return EntityDimensions.scalable(2F, 7.5F);
     }
 
     @Override

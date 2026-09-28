@@ -2,10 +2,8 @@ package com.hungteen.pvz.common.entity.plant.defence;
 
 import com.hungteen.pvz.api.types.IPlantType;
 import com.hungteen.pvz.common.impl.plant.PVZPlants;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class TallNutEntity extends WallNutEntity{
@@ -34,11 +32,6 @@ public class TallNutEntity extends WallNutEntity{
 		return 10;
 	}
 
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.9f, 1.9f, false);
-	}
-	
 	@Override
 	public float getAttractRange() {
 		return 3.5F;

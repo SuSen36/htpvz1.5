@@ -115,11 +115,6 @@ this.discard();
 		}
 		return super.checkLive(result);
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.2f, 0.2f, false);
-	}
 
 	@Override
 	protected int getMaxLiveTick() {

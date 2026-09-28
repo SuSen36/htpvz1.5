@@ -148,11 +148,6 @@ public class ChomperEntity extends PVZPlantEntity {
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.9f, 1.9f, false);
-	}
-
-	@Override
 	public int getSuperTimeLength() {
 		return 20;
 	}

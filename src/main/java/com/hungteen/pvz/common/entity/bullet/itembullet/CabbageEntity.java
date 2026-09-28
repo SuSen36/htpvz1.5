@@ -27,10 +27,5 @@ public class CabbageEntity extends PultBulletEntity implements ItemSupplier {
 	protected void dealDamage(Entity target) {
 		target.hurt(PVZEntityDamageSource.cabbage(this, this.getThrower()), this.getAttackDamage());
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.5F, 0.5F);
-	}
 
 }

@@ -61,11 +61,6 @@ public class ZombieDolphinEntity extends PVZZombieEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1f, 0.7f);
-	}
-
-	@Override
 	public float getEatDamage() {
 		return ZombieUtil.VERY_LOW;
 	}

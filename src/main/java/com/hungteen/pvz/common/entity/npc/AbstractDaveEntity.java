@@ -253,11 +253,6 @@ public abstract class AbstractDaveEntity extends PathfinderMob implements IHasGr
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.9f, 2.6f);
-	}
-	
-	@Override
 	protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
 		return SoundRegister.DAVE_HURT.get();
 	}

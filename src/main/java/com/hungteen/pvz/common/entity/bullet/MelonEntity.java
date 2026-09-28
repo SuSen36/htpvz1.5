@@ -78,12 +78,7 @@ public class MelonEntity extends PultBulletEntity {
 		}
 		EntityUtil.playSound(this, SoundRegister.MELON_HIT.get());
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.6F, 0.6F);
-	}
-	
+
 	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
 		super.readAdditionalSaveData(compound);

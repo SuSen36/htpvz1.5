@@ -173,11 +173,6 @@ this.discard();
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.95f, 0.4f, false);
-	}
-
-	@Override
 	public IPlantType getPlantType() {
 		return PVZPlants.SPIKE_WEED;
 	}

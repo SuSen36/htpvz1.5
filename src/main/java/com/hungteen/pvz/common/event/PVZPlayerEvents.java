@@ -6,16 +6,27 @@ import com.hungteen.pvz.common.capability.CapabilityHandler;
 import com.hungteen.pvz.common.capability.player.PlayerDataManager;
 import com.hungteen.pvz.common.datapack.PVZDataPackManager;
 import com.hungteen.pvz.common.entity.plant.PVZPlantEntity;
+import com.hungteen.pvz.common.event.events.PlantConditionMatchingEvent;
 import com.hungteen.pvz.common.event.events.SummonCardUseEvent;
 import com.hungteen.pvz.common.event.handler.PlayerEventHandler;
+import com.hungteen.pvz.common.item.spawn.card.PlantCardItem;
+import com.hungteen.pvz.common.item.spawn.card.SummonCardItem;
 import com.hungteen.pvz.common.item.tool.plant.BowlingGloveItem;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
+import com.hungteen.pvz.common.world.challenge.Challenge;
+import com.hungteen.pvz.common.world.challenge.ChallengeManager;
 import com.hungteen.pvz.common.world.invasion.InvasionManager;
 import com.hungteen.pvz.compat.CompatUtil;
 import com.hungteen.pvz.utils.PlayerUtil;
 import com.hungteen.pvz.utils.enums.Resources;
+import com.hungteen.pvz.utils.others.WeightList;
+import net.minecraft.ChatFormatting;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -23,6 +34,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid=PVZMod.MOD_ID)
 public class PVZPlayerEvents {
@@ -113,6 +126,40 @@ public class PVZPlayerEvents {
 	
 	@SubscribeEvent
 	public static void onSummonCardUse(SummonCardUseEvent ev) {
+	}
+	
+	@SubscribeEvent
+	public static void onPlantConditionMatching(PlantConditionMatchingEvent ev) {
+		if(ev.phase == PlantConditionMatchingEvent.Phase.PRE && ev.event != null && ! ev.isCanceled()
+				&& ev.event.getEntity().level instanceof ServerLevel serverLevel) {
+			final Player player = ev.event.getEntity();
+			final ItemStack heldStack = ev.event.seedPacket;
+			/* challenge bound cards can only be planted inside their own challenge */
+			final UUID challengeUuid = PlantCardItem.getChallengeUuid(heldStack);
+			if(challengeUuid != null && ! ChallengeManager.isPlayerInChallengeRange(serverLevel, challengeUuid, player)) {
+				ev.setCanceled(true);
+				ev.result = SummonCardItem.PlacementHints.CHALLENGE_ONLY.getTextByArg(ChatFormatting.RED, 0);
+			} else if(player instanceof ServerPlayer serverPlayer) {
+				/* when the level configures a seed pool, only pool entries can be planted */
+				final Challenge playerChallenge = ChallengeManager.getPlayerChallenge(serverPlayer);
+				if(playerChallenge != null) {
+					final WeightList<ItemStack> levelSeedPool = playerChallenge.getRaidComponent().getSeedPool();
+					if(levelSeedPool != null) {
+						boolean allowed = false;
+						for(ItemStack poolEntry : levelSeedPool.getItemList()) {
+							if(poolEntry.getItem() == heldStack.getItem()) {
+								allowed = true;
+								break;
+							}
+						}
+						if(! allowed) {
+							ev.setCanceled(true);
+							ev.result = SummonCardItem.PlacementHints.SEED_POOL_ONLY.getTextByArg(ChatFormatting.RED, 0);
+						}
+					}
+				}
+			}
+		}
 	}
 	
 }

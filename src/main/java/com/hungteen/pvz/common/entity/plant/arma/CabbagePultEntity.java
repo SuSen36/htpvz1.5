@@ -11,10 +11,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class CabbagePultEntity extends PlantPultEntity {
@@ -63,11 +61,6 @@ public class CabbagePultEntity extends PlantPultEntity {
 	@Override
 	public float getSuperDamage() {
 		return this.getAttackDamage() + 20;
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8F, 1F);
 	}
 	
 	@Override

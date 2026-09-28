@@ -62,6 +62,7 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public abstract class PVZPlantEntity extends AbstractPAZEntity implements IPlantEntity, IPlantCarrier {
 
@@ -87,6 +88,8 @@ public abstract class PVZPlantEntity extends AbstractPAZEntity implements IPlant
 	protected boolean canBeRemove = true;
 	protected boolean canHelpAttack = true;
 	protected boolean root = true;
+	@Nullable
+	private UUID challengeUuid;
 
 	public PVZPlantEntity(EntityType<? extends PathfinderMob> type, Level worldIn) {
 		super(type, worldIn);
@@ -658,6 +661,9 @@ public abstract class PVZPlantEntity extends AbstractPAZEntity implements IPlant
 		compound.putInt("plant_sleep_time", this.sleepTime);
 		PlantInfo.write(this.innerPlant, compound, "inner_plant_info");
 		compound.putBoolean("immune_to_weak", this.isImmuneToWeak);
+		if(this.challengeUuid != null) {
+			compound.putUUID(PlantCardItem.CHALLENGE_TAG, this.challengeUuid);
+		}
 	}
 
 	@Override
@@ -682,6 +688,9 @@ public abstract class PVZPlantEntity extends AbstractPAZEntity implements IPlant
 		if (compound.contains("immune_to_weak")) {
 			this.isImmuneToWeak = compound.getBoolean("immune_to_weak");
 		}
+		if(compound.hasUUID(PlantCardItem.CHALLENGE_TAG)) {
+			this.challengeUuid = compound.getUUID(PlantCardItem.CHALLENGE_TAG);
+		}
 		if (compound.contains("plant_state")) {
 			this.setPAZState(compound.getInt("plant_state"));
 		}
@@ -692,7 +701,16 @@ public abstract class PVZPlantEntity extends AbstractPAZEntity implements IPlant
 	public Optional<IPlantInfo> getPlantInfo() {
 		return Optional.ofNullable(this.innerPlant);
 	}
-	
+
+	@Nullable
+	public UUID getChallengeUuid() {
+		return this.challengeUuid;
+	}
+
+	public void setChallengeUuid(UUID challengeUuid) {
+		this.challengeUuid = challengeUuid;
+	}
+
 	public void setImmuneToWeak(boolean is) {
 		this.isImmuneToWeak = is;
 	}

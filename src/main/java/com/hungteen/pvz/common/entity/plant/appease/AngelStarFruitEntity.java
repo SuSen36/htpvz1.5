@@ -8,10 +8,8 @@ import com.hungteen.pvz.common.impl.SkillTypes;
 import com.hungteen.pvz.common.impl.plant.OtherPlants;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.utils.EntityUtil;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 public class AngelStarFruitEntity extends PlantShooterEntity {
@@ -79,11 +77,6 @@ public class AngelStarFruitEntity extends PlantShooterEntity {
 	protected AbstractBulletEntity createBullet() {
 		final StarEntity.StarTypes type = this.isPlantInSuperMode() ? StarEntity.StarTypes.BIG : StarEntity.StarTypes.NORMAL;
 		return new StarEntity(level, this, type, StarEntity.StarStates.PINK);
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.9F, 0.5F);
 	}
 	
 	@Override

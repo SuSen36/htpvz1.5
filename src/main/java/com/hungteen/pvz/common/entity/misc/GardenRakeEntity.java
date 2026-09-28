@@ -104,12 +104,7 @@ this.discard();
 		this.setOwner(player);
 		this.setYRot(player.getDirection().toYRot());
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.9F, 0.8F);
-	}
-	
+
 	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
 		super.readAdditionalSaveData(compound);

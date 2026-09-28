@@ -100,11 +100,6 @@ public class ElementBallEntity extends AbstractOwnerEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(3F, 3F);
-	}
-
-	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
 		super.readAdditionalSaveData(compound);
 		if(compound.contains("element_ball_type")) {

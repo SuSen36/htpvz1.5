@@ -14,6 +14,7 @@ import com.hungteen.pvz.common.entity.AbstractPAZEntity;
 import com.hungteen.pvz.common.entity.EntityRegister;
 import com.hungteen.pvz.common.entity.ai.goal.ChallengeMoveGoal;
 import com.hungteen.pvz.common.entity.misc.drop.SeedPacketEntity;
+import com.hungteen.pvz.common.entity.plant.PVZPlantEntity;
 import com.hungteen.pvz.common.item.spawn.card.PlantCardItem;
 import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.common.network.PVZFogPacket;
@@ -49,6 +50,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.nio.charset.StandardCharsets;
@@ -1002,6 +1004,10 @@ public class Challenge implements IChallenge {
 		});
 		this.challengeBar.removeAllPlayers();
 		this.raiders.forEach(e -> e.remove(net.minecraft.world.entity.Entity.RemovalReason.KILLED));
+		final List<PVZPlantEntity> challengePlants = this.world.getEntitiesOfClass(PVZPlantEntity.class,
+				new AABB(this.center).inflate(ConfigUtil.getRaidRange()),
+				plant -> this.getBarUuid().equals(plant.getChallengeUuid()));
+		challengePlants.forEach(plant -> plant.remove(Entity.RemovalReason.KILLED));
 	}
 
 	public int getId() {

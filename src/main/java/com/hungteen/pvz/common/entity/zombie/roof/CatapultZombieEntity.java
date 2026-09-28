@@ -124,11 +124,6 @@ public class CatapultZombieEntity extends CarZombieEntity implements IPult,IHasW
 		return (float) this.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue();
 	}
 	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8F, 2F);
-	}
-	
     @Override
 	public float getLife() {
 		return 85;

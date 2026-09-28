@@ -106,11 +106,6 @@ this.discard();
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8f, 1.6f);
-	}
-	
-	@Override
 	public float getLife() {
 		return 70;
 	}

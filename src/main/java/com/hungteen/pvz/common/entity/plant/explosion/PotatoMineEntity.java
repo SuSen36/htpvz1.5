@@ -281,11 +281,6 @@ public class PotatoMineEntity extends PlantCloserEntity{
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.6f, 0.4f, false);
-	}
-
-	@Override
 	public IPlantType getPlantType() {
 		return PVZPlants.POTATO_MINE;
 	}

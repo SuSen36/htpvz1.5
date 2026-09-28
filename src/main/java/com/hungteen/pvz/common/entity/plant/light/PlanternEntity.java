@@ -122,11 +122,6 @@ public class PlanternEntity extends PVZPlantEntity implements ILightEffect {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.75f, 1.7f);
-	}
-
-	@Override
 	public MobEffectInstance getLightEyeEffect() {
 		return EffectUtil.effect(EffectRegister.LIGHT_EYE_EFFECT.get(), this.getLightEyeTime(), 0);
 	}

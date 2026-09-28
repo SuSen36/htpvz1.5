@@ -157,11 +157,6 @@ public class CatTailEntity extends PlantShooterEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8F, 0.6F);
-	}
-
-	@Override
 	protected float getStandingEyeHeight(Pose poseIn, EntityDimensions sizeIn) {
 		return 0.5F;
 	}

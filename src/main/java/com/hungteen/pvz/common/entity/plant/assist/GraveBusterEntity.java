@@ -109,11 +109,6 @@ public class GraveBusterEntity extends PVZPlantEntity{
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1f, 1.6f);
-	}
-	
-	@Override
 	public void addAdditionalSaveData(CompoundTag compound) {
 		super.addAdditionalSaveData(compound);
 		compound.putInt("kill_cnt", this.killCount);

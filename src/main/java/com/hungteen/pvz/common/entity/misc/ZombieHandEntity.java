@@ -71,11 +71,6 @@ public class ZombieHandEntity extends AbstractOwnerEntity {
 	public boolean isPickable() {
 		return false;
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.4f, 0.5f, false);
-	}
 
 	@Override
 	public boolean isNoGravity() {

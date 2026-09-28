@@ -6,9 +6,7 @@ import com.hungteen.pvz.utils.EntityUtil;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -33,12 +31,7 @@ public class GiantNutBowlingEntity extends AbstractBowlingEntity {
 		    EntityUtil.playSound(this, SoundRegister.BOWLING_HIT.get());
 		}
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(2.5F, 2.5F);
-	}
-	
+
 	@Override
 	protected void changeDiretion() {
 	}

@@ -6,7 +6,7 @@ import com.hungteen.pvz.api.enums.PVZGroupType;
 import com.hungteen.pvz.api.paz.IZombieEntity;
 import com.hungteen.pvz.api.types.IPAZType;
 import com.hungteen.pvz.api.types.IZombieType;
-import com.hungteen.pvz.client.particle.ParticleUtil;
+import com.hungteen.pvz.client.particle.ParticleRegister;
 import com.hungteen.pvz.common.block.BlockRegister;
 import com.hungteen.pvz.common.entity.AbstractPAZEntity;
 import com.hungteen.pvz.common.entity.EntityRegister;
@@ -42,6 +42,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -86,6 +87,7 @@ public abstract class PVZZombieEntity extends AbstractPAZEntity implements IZomb
 	private static final int HEAD_FLAG = 3;
 	public static final int PERFORM_ATTACK_CD = 10;
 	public static final int RISING_CD = 30;
+	public static final float MINI_SCALE = 0.32F;
 	protected boolean needRising = false;
 	public boolean canCollideWithZombie = true;
 	protected boolean canLostHand = true;
@@ -229,7 +231,14 @@ public abstract class PVZZombieEntity extends AbstractPAZEntity implements IZomb
 		if(this.isZombieRising()) {
 			this.setAnimTime(this.getAnimTime() + 1);
 			if(level.isClientSide()) {
-				ParticleUtil.spawnSplash(this.level, this.position(), 1);
+				Vec3 vec = this.position();
+				for(int i = 0; i < 1; ++i) {
+					RandomSource rand = this.level.random;
+					this.level.addParticle(ParticleRegister.DIRT_BURST_OUT.get(), vec.x + 0.5d, vec.y, vec.z + 0.5d, (rand.nextFloat() - 0.5) / 10, 0.05d, (rand.nextFloat() - 0.5) / 10);
+					this.level.addParticle(ParticleRegister.DIRT_BURST_OUT.get(), vec.x + 0.5d, vec.y, vec.z - 0.5d, (rand.nextFloat() - 0.5) / 10, 0.05d, (rand.nextFloat() - 0.5) / 10);
+					this.level.addParticle(ParticleRegister.DIRT_BURST_OUT.get(), vec.x - 0.5d, vec.y, vec.z + 0.5d, (rand.nextFloat() - 0.5) / 10, 0.05d, (rand.nextFloat() - 0.5) / 10);
+					this.level.addParticle(ParticleRegister.DIRT_BURST_OUT.get(), vec.x - 0.5d, vec.y, vec.z - 0.5d, (rand.nextFloat() - 0.5) / 10, 0.05d, (rand.nextFloat() - 0.5) / 10);
+				}
 			}
 		}
 	}
@@ -347,7 +356,7 @@ public abstract class PVZZombieEntity extends AbstractPAZEntity implements IZomb
 
 	@Override
 	public EntityDimensions getDimensions(Pose poseIn) {
-		return this.isMiniZombie() ? EntityDimensions.scalable(0.3F, 0.6F) : EntityDimensions.scalable(0.8f, 1.98f);
+		return this.isMiniZombie() ? super.getDimensions(poseIn).scale(MINI_SCALE) : super.getDimensions(poseIn);
 	}
 
 	@Override

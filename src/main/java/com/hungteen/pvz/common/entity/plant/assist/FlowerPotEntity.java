@@ -35,11 +35,6 @@ public class FlowerPotEntity extends PVZPlantEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.75F, 0.43F);
-	}
-
-	@Override
 	public boolean canBeCollidedWith() {
 		return true;
 	}

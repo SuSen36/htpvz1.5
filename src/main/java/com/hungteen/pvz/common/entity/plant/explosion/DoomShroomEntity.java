@@ -16,10 +16,8 @@ import com.hungteen.pvz.utils.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -125,11 +123,6 @@ public class DoomShroomEntity extends PlantBomberEntity {
 	@Override
 	public float getExplodeRange(){
 		return 10.5F;
-	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8f, 1.5f);
 	}
 	
 	@Override

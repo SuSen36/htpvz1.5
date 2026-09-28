@@ -129,11 +129,6 @@ public class ZomboniEntity extends CarZombieEntity implements IHasMultiPart, IHa
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8f, 2.3f);
-	}
-
-	@Override
 	public ZombieType getZombieType() {
 		return PoolZombies.ZOMBONI;
 	}

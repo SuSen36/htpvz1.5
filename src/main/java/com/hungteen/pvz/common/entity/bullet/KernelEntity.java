@@ -18,10 +18,5 @@ public class KernelEntity extends PultBulletEntity {
 	protected void dealDamage(Entity target) {
 		target.hurt(PVZEntityDamageSource.kernel(this, this.getThrower()), this.getAttackDamage() / 2F);
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.4F, 0.4F);
-	}
-	
+
 }

@@ -23,10 +23,5 @@ public class ButterEntity extends PultBulletEntity {
 		}
 		target.hurt(source, this.attackDamage);
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.6F, 0.6F);
-	}
-	
+
 }

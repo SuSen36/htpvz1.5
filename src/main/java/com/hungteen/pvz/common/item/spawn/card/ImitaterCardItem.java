@@ -120,8 +120,8 @@ public class ImitaterCardItem extends PlantCardItem {
 		}
 	}
 	
-	public static boolean summonImitater(Player player, ItemStack heldStack, ItemStack plantStack, PlantCardItem cardItem, BlockPos pos, Consumer<ImitaterEntity> consumer) {
-		return PlantCardItem.handlePlantEntity(player, PVZPlants.IMITATER, plantStack, pos, i -> {
+	public static boolean summonImitater(Player player, ItemStack heldStack, ItemStack plantStack, PlantCardItem cardItem, BlockPos pos, ImitaterEntity imitaterEntity, Consumer<ImitaterEntity> consumer) {
+		return PlantCardItem.joinPlantEntity(player, PVZPlants.IMITATER, pos, imitaterEntity, i -> {
 			if(i instanceof ImitaterEntity imitater) {
                 imitater.setImitateCard(plantStack.copy());
     	        imitater.setDirection(player.getDirection().getOpposite());

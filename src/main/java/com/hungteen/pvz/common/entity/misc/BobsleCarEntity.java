@@ -508,11 +508,6 @@ this.discard();
 		}
 	}
 
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1.25f, 1.4f);
-	}
-
 	public Packet<?> getAddEntityPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);
 	}

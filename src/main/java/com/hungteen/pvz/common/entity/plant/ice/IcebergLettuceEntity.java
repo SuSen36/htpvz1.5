@@ -73,11 +73,6 @@ public class IcebergLettuceEntity extends PlantCloserEntity implements IIceEffec
     }
     
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.fixed(0.6F, 0.6F);
-	}
-	
-	@Override
 	public IPlantType getPlantType() {
 		return OtherPlants.ICEBERG_LETTUCE;
 	}

@@ -122,11 +122,6 @@ public class KernelPultEntity extends PlantPultEntity {
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.8F, 1F);
-	}
-	
-	@Override
 	public void readAdditionalSaveData(CompoundTag compound) {
 		super.readAdditionalSaveData(compound);
 		if(compound.contains("current_bullet_type")) {

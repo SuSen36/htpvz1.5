@@ -66,10 +66,5 @@ public class SmallChomperEntity extends AbstractOwnerEntity {
 	public boolean isNoGravity() {
 		return true;
 	}
-	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.4f, 0.5f, false);
-	}
 
 }

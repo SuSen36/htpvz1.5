@@ -129,11 +129,6 @@ public class StrangeCatEntity extends PVZPlantEntity {
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return new EntityDimensions(0.8f, 1f, false);
-	}
-	
-	@Override
 	public void addAdditionalSaveData(CompoundTag compound) {
 		super.addAdditionalSaveData(compound);
 		compound.putInt("rest_tick", this.restTick);

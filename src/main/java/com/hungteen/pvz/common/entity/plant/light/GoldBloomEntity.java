@@ -9,10 +9,8 @@ import com.hungteen.pvz.common.misc.sound.SoundRegister;
 import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.enums.PAZAlmanacs;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -77,11 +75,6 @@ public class GoldBloomEntity extends PlantBomberEntity {
 	@Override
 	public int getReadyTime() {
 		return 80;
-	}
-
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.6F, 0.6F);
 	}
 
 	@Override

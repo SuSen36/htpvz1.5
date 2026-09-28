@@ -116,11 +116,6 @@ public class JalapenoEntity extends PlantBomberEntity{
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.7f, 1.5f);
-	}
-
-	@Override
 	public int getReadyTime() {
 		return 20;
 	}

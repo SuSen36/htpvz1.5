@@ -363,11 +363,6 @@ public class CobCannonEntity extends PVZPlantEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(1.25f, 1f);
-	}
-
-	@Override
 	public int getSuperTimeLength() {
 		return 80;
 	}

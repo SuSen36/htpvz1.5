@@ -91,11 +91,6 @@ public class IceShroomEntity extends PlantBomberEntity implements IIceEffect{
 		return 0.1F;
 	}
 	
-	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.85f, 1.35f);
-	}
-	
 	public int getColdLvl() {
 		return 1;
 	}

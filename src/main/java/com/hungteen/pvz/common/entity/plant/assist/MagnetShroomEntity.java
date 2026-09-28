@@ -168,11 +168,6 @@ public class MagnetShroomEntity extends PVZPlantEntity {
 	}
 	
 	@Override
-	public EntityDimensions getDimensions(Pose poseIn) {
-		return EntityDimensions.scalable(0.5f, 1.3f);
-	}
-	
-	@Override
 	public int getSuperTimeLength() {
 		return 60;
 	}
