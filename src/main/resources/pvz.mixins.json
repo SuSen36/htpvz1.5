@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "pvz.refmap.json",
   "mixins": [
+    "LevelMixin",
     "OverworldBiomeBuilderMixin",
+    "PlayerListMixin",
     "SlotMixin"
   ],
   "server": [

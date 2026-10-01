@@ -192,7 +192,7 @@ public class EntityRegister {
 	public static final RegistryObject<EntityType<ImpEntity>> IMP = registerZombieEntityType(ImpEntity::new, "imp", 0.6f, 1.2f);
 	public static final RegistryObject<EntityType<GigaGargantuarEntity>> GIGA_GARGANTUAR = registerZombieEntityType(GigaGargantuarEntity::new, "giga_gargantuar", 0.8f, 4.0f);
 	public static final RegistryObject<EntityType<ZombotEntity>> ZOMBOT = registerZombieEntityType(ZombotEntity::new, "zombot", 2.0f, 7.5f);
-	public static final RegistryObject<EntityType<EdgarZombotEntity>> EDGAR_ZOMBOT = registerZombieEntityType(EdgarZombotEntity::new, "edgar_zombot", 3f, 15.0f);
+	public static final RegistryObject<EntityType<EdgarZombotEntity>> EDGAR_ZOMBOT = registerZombieEntityType(EdgarZombotEntity::new, "edgar_zombot", 3f, 10.0f);
 	public static final RegistryObject<EntityType<PeaShooterZombieEntity>> PEASHOOTER_ZOMBIE = registerZombieEntityType(PeaShooterZombieEntity::new, "peashooter_zombie", 0.8f, 1.98f);
 	public static final RegistryObject<EntityType<GatlingPeaZombieEntity>> GATLINGPEA_ZOMBIE = registerZombieEntityType(GatlingPeaZombieEntity::new, "gatlingpea_zombie", 0.8f, 1.98f);
 	public static final RegistryObject<EntityType<SquashZombieEntity>> SQUASH_ZOMBIE = registerZombieEntityType(SquashZombieEntity::new, "squash_zombie", 0.8f, 1.98f);

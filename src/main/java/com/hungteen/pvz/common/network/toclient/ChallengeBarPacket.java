@@ -4,6 +4,7 @@ import com.hungteen.pvz.api.raid.IChallengeComponent;
 import com.hungteen.pvz.client.challenge.ChallengeBgmManager;
 import com.hungteen.pvz.client.challenge.ClientChallengeBarManager;
 import com.hungteen.pvz.common.world.challenge.ChallengeManager;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
@@ -23,9 +24,13 @@ public class ChallengeBarPacket {
 	private final BitSet givenUpWaves;
 	private final boolean bossChallenge;
 	private final boolean bgmPlaying;
+	private final BlockPos center;
+	private final long dayTimeOverride;
+	private final float rainLevelOverride;
+	private final float thunderLevelOverride;
 	private final boolean remove;
 
-	public ChallengeBarPacket(int challengeId, UUID challengeBarId, ResourceLocation resource, int totalWaves, int currentWave, BitSet bigWaves, BitSet givenUpWaves, boolean bossChallenge, boolean bgmPlaying) {
+	public ChallengeBarPacket(int challengeId, UUID challengeBarId, ResourceLocation resource, int totalWaves, int currentWave, BitSet bigWaves, BitSet givenUpWaves, boolean bossChallenge, boolean bgmPlaying, BlockPos center, long dayTimeOverride, float rainLevelOverride, float thunderLevelOverride) {
 		this.challengeId = challengeId;
 		this.challengeBarId = challengeBarId;
 		this.resource = resource;
@@ -35,6 +40,10 @@ public class ChallengeBarPacket {
 		this.givenUpWaves = givenUpWaves;
 		this.bossChallenge = bossChallenge;
 		this.bgmPlaying = bgmPlaying;
+		this.center = center;
+		this.dayTimeOverride = dayTimeOverride;
+		this.rainLevelOverride = rainLevelOverride;
+		this.thunderLevelOverride = thunderLevelOverride;
 		this.remove = false;
 	}
 
@@ -48,6 +57,10 @@ public class ChallengeBarPacket {
 		this.givenUpWaves = new BitSet();
 		this.bossChallenge = false;
 		this.bgmPlaying = false;
+		this.center = BlockPos.ZERO;
+		this.dayTimeOverride = -1L;
+		this.rainLevelOverride = -1.0F;
+		this.thunderLevelOverride = -1.0F;
 		this.remove = true;
 	}
 
@@ -67,6 +80,10 @@ public class ChallengeBarPacket {
 			this.givenUpWaves = new BitSet();
 			this.bossChallenge = false;
 			this.bgmPlaying = false;
+			this.center = BlockPos.ZERO;
+			this.dayTimeOverride = -1L;
+			this.rainLevelOverride = -1.0F;
+			this.thunderLevelOverride = -1.0F;
 		} else {
 			this.challengeBarId = buf.readUUID();
 			this.resource = buf.readResourceLocation();
@@ -76,6 +93,10 @@ public class ChallengeBarPacket {
 			this.givenUpWaves = BitSet.valueOf(buf.readLongArray());
 			this.bossChallenge = buf.readBoolean();
 			this.bgmPlaying = buf.readBoolean();
+			this.center = buf.readBlockPos();
+			this.dayTimeOverride = buf.readLong();
+			this.rainLevelOverride = buf.readFloat();
+			this.thunderLevelOverride = buf.readFloat();
 		}
 	}
 
@@ -91,6 +112,10 @@ public class ChallengeBarPacket {
 			buf.writeLongArray(this.givenUpWaves.toLongArray());
 			buf.writeBoolean(this.bossChallenge);
 			buf.writeBoolean(this.bgmPlaying);
+			buf.writeBlockPos(this.center);
+			buf.writeLong(this.dayTimeOverride);
+			buf.writeFloat(this.rainLevelOverride);
+			buf.writeFloat(this.thunderLevelOverride);
 		}
 	}
 
@@ -100,7 +125,7 @@ public class ChallengeBarPacket {
 				ClientChallengeBarManager.remove(this.challengeId);
 				ChallengeBgmManager.remove(this.challengeId);
 			} else {
-				ClientChallengeBarManager.update(this.challengeId, this.challengeBarId, this.resource, this.totalWaves, this.currentWave, this.bigWaves, this.givenUpWaves, this.bossChallenge);
+				ClientChallengeBarManager.update(this.challengeId, this.challengeBarId, this.resource, this.totalWaves, this.currentWave, this.bigWaves, this.givenUpWaves, this.bossChallenge, this.center, this.dayTimeOverride, this.rainLevelOverride, this.thunderLevelOverride);
 				if(this.bgmPlaying) {
 					final IChallengeComponent component = ChallengeManager.getChallengeByResource(this.resource);
 					if(component != null && component.getBgmSound() != null) {

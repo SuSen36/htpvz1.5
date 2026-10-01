@@ -73,8 +73,8 @@ public class EdgarZombotEntity extends ZombotEntity {
 
     @Override
     protected void spawnSpecialDrops() {
-        final int playerCnt = this.bossInfo.getPlayers().size();
-        for (int i = 0; i < 4 + 3 * playerCnt; ++i) {
+        final int playerCnt = this.bossInfo.getPlayers().size() + 1;
+        for (int i = 0; i < 3 * playerCnt; ++i) {
             JewelEntity jewel = EntityRegister.JEWEL.get().create(level);
             EntityUtil.onEntityRandomPosSpawn(level, jewel, blockPosition().above(5), 4);
         }

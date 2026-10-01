@@ -114,20 +114,7 @@ public class ChallengeEnvelopeItem extends Item {
                 PlayerUtil.playClientSound(player, SoundRegister.NO.get());
             } else{
                 final Level level = context.getLevel();
-                //tag 限制：day/night 校验昼夜，rain/thunder 校验天气
-                if(challengeComponent.hasTag("day") && ! isDayTime(level)){
-                    player.displayClientMessage(Component.translatable("help.pvz.day_only").withStyle(ChatFormatting.RED), true);
-                    PlayerUtil.playClientSound(player, SoundRegister.NO.get());
-                } else if(challengeComponent.hasTag("night") && isDayTime(level)){
-                    player.displayClientMessage(Component.translatable("help.pvz.night_only").withStyle(ChatFormatting.RED), true);
-                    PlayerUtil.playClientSound(player, SoundRegister.NO.get());
-                } else if(challengeComponent.hasTag("rain") && ! level.isRaining()){
-                    player.displayClientMessage(Component.translatable("help.pvz.rain_only").withStyle(ChatFormatting.RED), true);
-                    PlayerUtil.playClientSound(player, SoundRegister.NO.get());
-                } else if(challengeComponent.hasTag("thunder") && ! level.isThundering()){
-                    player.displayClientMessage(Component.translatable("help.pvz.thunder_only").withStyle(ChatFormatting.RED), true);
-                    PlayerUtil.playClientSound(player, SoundRegister.NO.get());
-                } else if(ChallengeManager.hasChallengeNearby((ServerLevel) level, context.getClickedPos().above())){
+                if(ChallengeManager.hasChallengeNearby((ServerLevel) level, context.getClickedPos().above())){
                     player.displayClientMessage(Component.translatable("help.pvz.full_challenge").withStyle(ChatFormatting.RED), true);
                     PlayerUtil.playClientSound(player, SoundRegister.NO.get());
                 } else if(ChallengeManager.hasPlantNearby((ServerLevel) level, context.getClickedPos().above())){
@@ -147,12 +134,4 @@ public class ChallengeEnvelopeItem extends Item {
         }
         return InteractionResult.CONSUME;
     }
-
-    /**
-     * 白天为世界时间 [0, 12000)。
-     */
-    private static boolean isDayTime(Level world) {
-        return world.getDayTime() % 24000 < 12000;
-    }
-
 }

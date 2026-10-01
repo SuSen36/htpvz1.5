@@ -376,7 +376,7 @@ public abstract class AbstractEdgarZombotEntity extends AbstractBossZombieEntity
 
     @Override
     public Optional<SoundEvent> getSpawnSound() {
-        return Optional.ofNullable(SoundRegister.EDGAR_LAUGH.get());
+        return Optional.of(SoundRegister.EDGAR_LAUGH.get());
     }
 
     @Override

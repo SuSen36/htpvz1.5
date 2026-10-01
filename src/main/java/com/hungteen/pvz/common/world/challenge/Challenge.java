@@ -70,6 +70,13 @@ public class Challenge implements IChallenge {
 	private static final String TAG_SEED_RAIN = "seed_rain";
 	private static final String TAG_CONVEYOR = "conveyor";
 	private static final String TAG_BOWLING = "bowling";
+	private static final String TAG_DAY = "day";
+	private static final String TAG_NIGHT = "night";
+	private static final String TAG_RAIN = "rain";
+	private static final String TAG_THUNDER = "thunder";
+	private static final String TAG_CLEAR = "clear";
+	private static final long DAY_OVERRIDE_TIME = 6000L;
+	private static final long NIGHT_OVERRIDE_TIME = 18000L;
 	//带上最多10张卡，首张200cs后出现，之后按带上张数分档补卡（原版数值单位为cs，换算tick需除以5）
 	private static final int CONVEYOR_MAX_CARDS = 10;
 	private static final int CONVEYOR_INITIAL_DELAY = 40;
@@ -734,7 +741,7 @@ public class Challenge implements IChallenge {
 		//BGM 随 bar 包下发：仅准备/进行态播放，终态重发本包即驱动客户端淡出，bar 本身保留到 remove
 		final boolean bossChallenge = this.isBossChallenge();
 		final boolean bgmPlaying = this.isPreparing() || this.isRunning();
-		PVZPacketHandler.sendToClient(player, new ChallengeBarPacket(this.id, this.challengeBar.getId(), this.resource, this.challenge.getTotalWaveCount(), this.currentWave, bigWaves, this.givenUpWaves, bossChallenge, bgmPlaying));
+		PVZPacketHandler.sendToClient(player, new ChallengeBarPacket(this.id, this.challengeBar.getId(), this.resource, this.challenge.getTotalWaveCount(), this.currentWave, bigWaves, this.givenUpWaves, bossChallenge, bgmPlaying, this.center, this.getDayTimeOverride(), this.getRainLevelOverride(), this.getThunderLevelOverride()));
 	}
 
 	/**
@@ -752,10 +759,50 @@ public class Challenge implements IChallenge {
 	}
 
 	public boolean isInRange(Entity entity) {
+		return this.isInRange(entity.getX(), entity.getY(), entity.getZ());
+	}
+
+	public boolean isInRange(double x, double y, double z) {
 		final int range = ConfigUtil.getRaidRange();
-		return Math.abs(entity.getX() - this.center.getX()) <= range
-				&& Math.abs(entity.getY() - this.center.getY()) <= range
-				&& Math.abs(entity.getZ() - this.center.getZ()) <= range;
+		return Math.abs(x - this.center.getX()) <= range
+				&& Math.abs(y - this.center.getY()) <= range
+				&& Math.abs(z - this.center.getZ()) <= range;
+	}
+
+	public long getDayTimeOverride() {
+		long result = -1L;
+		if((this.isPreparing() || this.isRunning()) && this.getRaidComponent() != null) {
+			if(this.hasTag(TAG_NIGHT)) {
+				result = NIGHT_OVERRIDE_TIME;
+			} else if(this.hasTag(TAG_DAY)) {
+				result = DAY_OVERRIDE_TIME;
+			}
+		}
+		return result;
+	}
+
+	public float getRainLevelOverride() {
+		float result = -1.0F;
+		if((this.isPreparing() || this.isRunning()) && this.getRaidComponent() != null) {
+			if(this.hasTag(TAG_THUNDER) || this.hasTag(TAG_RAIN)) {
+				result = 1.0F;
+			} else if(this.hasTag(TAG_CLEAR)) {
+				result = 0.0F;
+			}
+		}
+		return result;
+	}
+
+	public float getThunderLevelOverride() {
+		float result = -1.0F;
+		if((this.isPreparing() || this.isRunning()) && this.getRaidComponent() != null) {
+			if(this.hasTag(TAG_THUNDER)) {
+				result = 1.0F;
+			} else if(this.hasTag(TAG_RAIN) || this.hasTag(TAG_CLEAR)) {
+				result = 0.0F;
+			}
+		}
+		return result;
 	}
 
 	/**

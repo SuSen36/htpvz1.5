@@ -20,13 +20,13 @@ public class DestroyCarEntity extends AbstractOwnerEntity {
 	@Override
 	public void tick() {
 		super.tick();
-		if(! level.isClientSide()) {
-			if(this.tickCount >= 100 || this.isOnGround()) {
-this.discard();
-			}
-		}
 		this.tickMove();
 		this.tickCollision();
+		if(! level.isClientSide()) {
+			if(this.tickCount >= 100 || this.isOnGround()) {
+				this.discard();
+			}
+		}
 	}
 	
 	/**
